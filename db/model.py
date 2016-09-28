@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- ®
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from db.helper import get_base
 from sqlalchemy.dialects import postgresql
@@ -17,11 +17,13 @@ class Block(Base):
     description = Column(String, index=True)
     country = Column(String, index=True)
     maintained_by = Column(String, index=True)
+    created = Column(DateTime, index=True)
+    last_modified = Column(DateTime, index=True)
 
     def __str__(self):
-        return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}'.format(self.inetnum, self.netname,
-                                                                                        self.description, self.country,
-                                                                                        self.maintained_by)
+        return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}, created: {}, updated: {}'.format(
+            self.inetnum, self.netname, self.description, self.country,
+            self.maintained_by, self.created, self.last_modified)
 
     def __repr__(self):
         return self.__str__()

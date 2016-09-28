@@ -74,8 +74,10 @@ def parse_blocks(jobs: Queue):
         description = parse_property(block, 'descr')
         country = parse_property(block, 'country')
         maintained_by = parse_property(block, 'mnt-by')
+        created = parse_property(block, 'created')
+        last_modified = parse_property(block, 'last-modified')
         b = Block(inetnum=inetnum, netname=netname, description=description, country=country,
-                  maintained_by=maintained_by)
+                  maintained_by=maintained_by, created=created, last_modified=last_modified)
         session.add(b)
         counter += 1
         if counter % COMMIT_COUNT == 0:
