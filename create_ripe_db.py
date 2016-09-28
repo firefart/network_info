@@ -27,9 +27,9 @@ logger.addHandler(stream_handler)
 
 
 def parse_property(block: str, name: str):
-    match = re.search(u'^{0:s}:\s*(.*)$'.format(name), block, re.MULTILINE)
+    match = re.findall(u'^{0:s}:\s*(.*)$'.format(name), block, re.MULTILINE)
     if match:
-        return match.group(1)
+        return " ".join(match)
     else:
         logger.error('Missing ' + name + ' in block')
         return None
