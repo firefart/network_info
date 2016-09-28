@@ -31,7 +31,7 @@ def parse_property(block: str, name: str):
     if match:
         return " ".join(match)
     else:
-        logger.error('Missing ' + name + ' in block')
+        logger.info('Missing ' + name + ' in block')
         return None
 
 
