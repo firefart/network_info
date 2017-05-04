@@ -36,16 +36,16 @@ def parse_property(block: str, name: str):
         return None
 
 def parse_property_inetnum(block: str):
-    match = re.findall(u'^{0:s}:\s*(.*)$'.format('inetnum'), block, re.MULTILINE)
+    match = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
     if match:
-        ip_start = match[0].split(' - ')[0]
-        ip_end = match[0].split(' - ')[1]
+        ip_start = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3}', block, re.MULTILINE)[0]
+        ip_end = re.findall('^inetnum:[\s]*(?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)[0]
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return '{}'.format(cidrs[0])
     else:
-        match = re.findall(u'^{0:s}:\s*(.*)$'.format('inet6num'), block, re.MULTILINE)
+        match = re.findall('^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
         if match:
-            return " ".join(match)
+            return match[0]
         else:
             return None
 
