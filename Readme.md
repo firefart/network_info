@@ -30,9 +30,9 @@ wget ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.inet6num.gz
 After importing you can lookup an IP address like:
 
 ```sql
-`SELECT block.inetnum, block.country, block.description FROM block WHERE block.inetnum >> '2001:db8::1' ORDER BY block.inetnum DESC LIMIT 1;`
+SELECT block.inetnum, block.country, block.description FROM block WHERE block.inetnum >> '2001:db8::1' ORDER BY block.inetnum DESC LIMIT 1;
 
-- or simply-
+- or simply -
 
 ./query_ripe_db.sh 192.0.2.1
 ```
