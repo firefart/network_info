@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*- ®
 
 from sqlalchemy import create_engine
@@ -25,5 +25,5 @@ def setup_connection(create_db=False):
 
 
 def create_postgres_pool():
-    engine = create_engine('postgresql://ripe@localhost/ripe')
+    engine = create_engine('postgresql://ripe:ripe@localhost/ripe')
     return engine

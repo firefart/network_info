@@ -1,4 +1,5 @@
 .idea/
 *.pyc
 ripe.db.inetnum.gz
+ripe.db.inet6num.gz
 env/
