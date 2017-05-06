@@ -11,8 +11,9 @@ import os.path
 from db.model import Block
 from db.helper import setup_connection
 from netaddr import iprange_to_cidrs
+import math
 
-FILELIST = ['ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
+FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db', 'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(processName)s - %(message)s'
 COMMIT_COUNT = 10000
@@ -32,41 +33,76 @@ def parse_property(block: str, name: str):
     if match:
         return " ".join(match)
     else:
-#        logger.info('Missing ' + name + ' in block')
         return None
 
 def parse_property_inetnum(block: str):
+# IPv4
     match = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
     if match:
         ip_start = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3}', block, re.MULTILINE)[0]
         ip_end = re.findall('^inetnum:[\s]*(?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)[0]
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return '{}'.format(cidrs[0])
+# IPv6
     else:
         match = re.findall('^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
         if match:
             return match[0]
+# LACNIC translation for IPv4
         else:
-            return None
+            match = re.findall('^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
+            if match:
+                return match[0]
+            else:
+                return None
 
 
 def read_blocks(filename: str) -> list:
-    f = gzip.open(filename, mode='rt', encoding='ISO-8859-1')
+    if filename.endswith('.gz'):
+        f = gzip.open(filename, mode='rt', encoding='ISO-8859-1')
+    else:
+        f = open(filename, mode='rt', encoding='ISO-8859-1')
     single_block = ''
     blocks = []
-    for line in f:
-        if line.startswith('%') or line.startswith('#') or line.startswith('remarks:'):
-            continue
-        # block end
-        if line.strip() == '':
-            if single_block.startswith('inetnum:') or single_block.startswith('inet6num:'):
-                blocks.append(single_block)
-                single_block = ''
-                # comment out to only parse x blocks
-                # if len(blocks) == 100:
-                #    break
-        else:
-            single_block += line
+
+# Translation for LACNIC DB
+    if filename == 'delegated-lacnic-extended-latest':
+        for line in f:
+            if line.startswith('lacnic'):
+                elements = line.split('|')
+                if len(elements) >= 7:
+                    single_block = ''
+                    if elements[2] == 'ipv4':
+                        single_block += 'inet4num: ' + elements[3] + '/' + str(int(math.log(4294967296/int(elements[4]),2))) + '\n'
+                    elif elements[2] == 'ipv6':
+                        single_block += 'inet6num: ' + elements[3] + '/' + elements[4] + '\n'
+                    else:
+                        continue
+                    if len(elements[1]) > 1:
+                        single_block += 'country: ' + elements[1] + '\n'
+                    if elements[5].isnumeric():
+                        single_block += 'last-modified: ' + elements[5] + '\n'
+                    single_block += 'descr: ' + elements[6] + '\n'
+                    blocks.append(single_block)
+
+# All other DBs goes here
+    else:
+        for line in f:
+            if line.startswith('%') or line.startswith('#') or line.startswith('remarks:') or line.startswith(' '):
+                continue
+            # block end
+            if line.strip() == '':
+                if single_block.startswith('inetnum:') or single_block.startswith('inet6num:'):
+                    blocks.append(single_block)
+                    single_block = ''
+                    # comment out to only parse x blocks
+                    # if len(blocks) == 100:
+                    #    break
+                else:
+                    single_block = ''
+            else:
+                single_block += line
+
     f.close()
     logger.info('Got {} blocks'.format(len(blocks)))
     global NUM_BLOCKS
@@ -113,7 +149,6 @@ def parse_blocks(jobs: Queue):
     logger.debug('{} finished'.format(current_process().name))
 
 
-
 def main():
     overall_start_time = time.time()
 
@@ -121,10 +156,10 @@ def main():
 
     for FILENAME in FILELIST:
         if os.path.exists(FILENAME):
-            logger.info('parsing ripe database file: {}'.format(FILENAME))
+            logger.info('parsing database file: {}'.format(FILENAME))
             start_time = time.time()
             blocks = read_blocks(FILENAME)
-            logger.info('ripe database parsing finished: {} seconds'.format(round(time.time() - start_time, 2)))
+            logger.info('database parsing finished: {} seconds'.format(round(time.time() - start_time, 2)))
 
             logger.info('parsing blocks')
             start_time = time.time()
@@ -151,7 +186,7 @@ def main():
 
             logger.info('block parsing finished: {} seconds'.format(round(time.time() - start_time, 2)))
         else:
-            logger.info('File {} not found. Please download from ftp://ftp.ripe.net/ripe/dbase/split/{}'.format(FILENAME, FILENAME))
+            logger.info('File {} not found. Please download using download_dumps.sh'.format(FILENAME))
 
     logger.info('script finished: {} seconds'.format(round(time.time() - overall_start_time, 2)))
 

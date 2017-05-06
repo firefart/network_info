@@ -13,7 +13,7 @@ class Block(Base):
     __tablename__ = 'block'
     id = Column(Integer, primary_key=True)
     inetnum = Column(postgresql.CIDR, nullable=False, index=True)
-    netname = Column(String, nullable=False, index=True)
+    netname = Column(String, nullable=True, index=True)
     description = Column(String, index=True)
     country = Column(String, index=True)
     maintained_by = Column(String, index=True)
