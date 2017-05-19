@@ -1,0 +1,18 @@
+.git/
+env/
+bin/
+.*
+**/.DS_STORE
+**/*.md
+**/*.swp
+**/*.pyc
+Dockerfile
+docker-compose.yml
+# databases
+afrinic.db.gz
+apnic.db.inet6num.gz
+apnic.db.inetnum.gz
+arin.db
+delegated-lacnic-extended-latest
+ripe.db.inetnum.gz
+ripe.db.inet6num.gz

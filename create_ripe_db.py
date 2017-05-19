@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
 import gzip
 import time
 from multiprocessing import cpu_count, Queue, Process, current_process
@@ -13,6 +14,7 @@ from db.helper import setup_connection
 from netaddr import iprange_to_cidrs
 import math
 
+VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db', 'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(processName)s - %(message)s'
@@ -110,8 +112,8 @@ def read_blocks(filename: str) -> list:
     return blocks
 
 
-def parse_blocks(jobs: Queue):
-    session = setup_connection()
+def parse_blocks(jobs: Queue, connection_string: str):
+    session = setup_connection(connection_string)
 
     counter = 0
     BLOCKS_DONE = 0
@@ -139,7 +141,7 @@ def parse_blocks(jobs: Queue):
         if counter % COMMIT_COUNT == 0:
             session.commit()
             session.close()
-            session = setup_connection()
+            session = setup_connection(connection_string)
             logger.debug('committed {} blocks ({} seconds) {:.1f}% done.'.format(counter, round(time.time() - start_time, 2),BLOCKS_DONE * NUM_WORKERS * 100 / NUM_BLOCKS))
             counter = 0
             start_time = time.time()
@@ -149,10 +151,10 @@ def parse_blocks(jobs: Queue):
     logger.debug('{} finished'.format(current_process().name))
 
 
-def main():
+def main(connection_string):
     overall_start_time = time.time()
 
-    session = setup_connection(create_db=True)
+    session = setup_connection(connection_string, create_db=True)
 
     for FILENAME in FILELIST:
         if os.path.exists(FILENAME):
@@ -170,7 +172,7 @@ def main():
             # start workers
             logger.debug('starting {} processes'.format(NUM_WORKERS))
             for w in range(NUM_WORKERS):
-                p = Process(target=parse_blocks, args=(jobs,))
+                p = Process(target=parse_blocks, args=(jobs,connection_string,))
                 p.start()
                 workers.append(p)
 
@@ -192,4 +194,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Create ripe DB')
+    parser.add_argument('-c', dest='connection_string', type=str, required=True, help="Connection string to the postgres database")
+    parser.add_argument('--version', action='version', version='%(prog)s {}'.format(VERSION))
+    args = parser.parse_args()
+    main(args.connection_string)
