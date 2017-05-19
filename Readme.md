@@ -41,10 +41,13 @@ After importing you can lookup an IP address like:
 
 ```sql
 SELECT block.inetnum, block.country, block.description FROM block WHERE block.inetnum >> '2001:db8::1' ORDER BY block.inetnum DESC LIMIT 1;
+select block.* from block where block.inetnum >> '8.8.8.8';
+```
 
 - or simply -
 
-./query_ripe_db.sh 192.0.2.1
+```bash
+./query_db.sh 192.0.2.1
 ```
 
 TO-DO:

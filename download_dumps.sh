@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir -p ./databases
+
 wget ftp://ftp.afrinic.net/pub/dbase/afrinic.db.gz
 
 wget ftp://ftp.apnic.net/pub/apnic/whois/apnic.db.inetnum.gz

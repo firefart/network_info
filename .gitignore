@@ -1,10 +1,4 @@
 .idea/
 *.pyc
-afrinic.db.gz
-apnic.db.inet6num.gz
-apnic.db.inetnum.gz
-arin.db
-delegated-lacnic-extended-latest
-ripe.db.inetnum.gz
-ripe.db.inet6num.gz
+databases/
 env/

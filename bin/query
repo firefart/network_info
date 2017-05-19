@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+cd $DIR/../
+
+docker-compose run -e PGPASSWORD=ripe --entrypoint=psql db -h db -U ripe -e -q -x -c "SELECT block.inetnum, block.country, block.description FROM block WHERE block.inetnum >> '$1' ORDER BY block.inetnum DESC;" ripe

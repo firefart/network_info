@@ -21,5 +21,5 @@ USER ripe
 
 RUN ./download_dumps.sh
 
-ENTRYPOINT ["/ripe/create_ripe_db.py"]
+ENTRYPOINT ["/ripe/create_db.py"]
 CMD ["--help"]

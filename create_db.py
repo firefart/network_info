@@ -21,7 +21,7 @@ LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(processName)s - %(messa
 COMMIT_COUNT = 10000
 NUM_BLOCKS = 0
 
-logger = logging.getLogger('create_ripe_db')
+logger = logging.getLogger('create_db')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(LOG_FORMAT)
 stream_handler = logging.StreamHandler()
@@ -67,12 +67,14 @@ def read_blocks(filename: str) -> list:
     single_block = ''
     blocks = []
 
-# Translation for LACNIC DB
-    if filename == 'delegated-lacnic-extended-latest':
+    # Translation for LACNIC DB
+    if filename.endswith('delegated-lacnic-extended-latest'):
         for line in f:
+            line = line.strip()
             if line.startswith('lacnic'):
                 elements = line.split('|')
                 if len(elements) >= 7:
+                    # convert lacnic to ripe format
                     single_block = ''
                     if elements[2] == 'ipv4':
                         single_block += 'inet4num: ' + elements[3] + '/' + str(int(math.log(4294967296/int(elements[4]),2))) + '\n'
@@ -85,11 +87,17 @@ def read_blocks(filename: str) -> list:
                     if elements[5].isnumeric():
                         single_block += 'last-modified: ' + elements[5] + '\n'
                     single_block += 'descr: ' + elements[6] + '\n'
+                    if ("inet4num" or "inet6num") not in single_block:
+                        logger.warn("Invalid block: {}".format(line))
                     blocks.append(single_block)
-
-# All other DBs goes here
+                else:
+                    logger.warn("Invalid line: {}".format(line))
+            else:
+                logger.warn("line does not start with lacnic: {}".format(line))
+    # All other DBs goes here
     else:
         for line in f:
+            # skip comments
             if line.startswith('%') or line.startswith('#') or line.startswith('remarks:') or line.startswith(' '):
                 continue
             # block end
@@ -142,7 +150,7 @@ def parse_blocks(jobs: Queue, connection_string: str):
             session.commit()
             session.close()
             session = setup_connection(connection_string)
-            logger.debug('committed {} blocks ({} seconds) {:.1f}% done.'.format(counter, round(time.time() - start_time, 2),BLOCKS_DONE * NUM_WORKERS * 100 / NUM_BLOCKS))
+            logger.debug('committed {} blocks ({} seconds) {:.1f}% done.'.format(counter, round(time.time() - start_time, 2), BLOCKS_DONE * NUM_WORKERS * 100 / NUM_BLOCKS))
             counter = 0
             start_time = time.time()
     session.commit()
@@ -153,14 +161,14 @@ def parse_blocks(jobs: Queue, connection_string: str):
 
 def main(connection_string):
     overall_start_time = time.time()
-
     session = setup_connection(connection_string, create_db=True)
 
-    for FILENAME in FILELIST:
-        if os.path.exists(FILENAME):
-            logger.info('parsing database file: {}'.format(FILENAME))
+    for entry in FILELIST:
+        f_name = "./databases/{}".format(entry)
+        if os.path.exists(f_name):
+            logger.info('parsing database file: {}'.format(f_name))
             start_time = time.time()
-            blocks = read_blocks(FILENAME)
+            blocks = read_blocks(f_name)
             logger.info('database parsing finished: {} seconds'.format(round(time.time() - start_time, 2)))
 
             logger.info('parsing blocks')
@@ -188,13 +196,13 @@ def main(connection_string):
 
             logger.info('block parsing finished: {} seconds'.format(round(time.time() - start_time, 2)))
         else:
-            logger.info('File {} not found. Please download using download_dumps.sh'.format(FILENAME))
+            logger.info('File {} not found. Please download using download_dumps.sh'.format(f_name))
 
     logger.info('script finished: {} seconds'.format(round(time.time() - overall_start_time, 2)))
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Create ripe DB')
+    parser = argparse.ArgumentParser(description='Create DB')
     parser.add_argument('-c', dest='connection_string', type=str, required=True, help="Connection string to the postgres database")
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(VERSION))
     args = parser.parse_args()
