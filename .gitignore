@@ -1,4 +1,5 @@
 .idea/
 *.pyc
+*.swp
 databases/
 env/

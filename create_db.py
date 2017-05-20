@@ -17,7 +17,7 @@ import math
 VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db', 'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(processName)s - %(message)s'
+LOG_FORMAT = '%(asctime)-15s - %(name)-9s - %(levelname)-8s - %(processName)-11s - %(message)s'
 COMMIT_COUNT = 10000
 NUM_BLOCKS = 0
 
