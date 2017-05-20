@@ -1,12 +1,7 @@
--) Handle Special case ("Dodsal"):
-inetnum:        118.102.134.160 -
-                118.102.134.175
-118.102.134.160/28
 -) add docker to readme
 -) grep --exclude-dir=databases -r ripe *
 -) rename project
 -) db download as entrypoint, keep image small, always get the latest shit
--) netname mandatory field --> not null (https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-documentation/rpsl-object-types/4-2-descriptions-of-primary-objects/4-2-4-description-of-the-inetnum-object)
 -) 176.28.20.159
 description | This network range is not allocated to APNIC. descr:        If your whois search has returned this message, then you have searched the APNIC whois database for an address that is allocated by another Regional Internet Registry (RIR). descr:        Please search the other RIRs at whois.arin.net or whois.ripe.net for more information about that range.
 -) remove volume from binstubs
