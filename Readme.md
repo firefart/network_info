@@ -1,7 +1,7 @@
 # Network Info Parser
 
 This script parses the ARIN/APNIC/LACNIC/AfriNIC/RIPE databases into a local PostgreSQL database.
-After the parsing finished you can get the infos for any IPv6 or IPv6 by querying the database.
+After the parsing finished you can get the infos for any IPv4 or IPv6 by querying the database.
 
 I recommend using the docker setup because it removes the hassle of installing everything manually.
 
