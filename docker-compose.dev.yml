@@ -1,0 +1,6 @@
+version: '2'
+services:
+  ripe:
+    entrypoint: /ripe/create_db.py
+    volumes:
+      - .:/ripe
