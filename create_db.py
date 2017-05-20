@@ -177,7 +177,11 @@ def parse_blocks(jobs: Queue, connection_string: str):
             session.commit()
             session.close()
             session = setup_connection(connection_string)
-            logger.debug('committed {} blocks ({} seconds) {:.1f}% done.'.format(counter, round(time.time() - start_time, 2), BLOCKS_DONE * NUM_WORKERS * 100 / NUM_BLOCKS))
+            # not really accurate at the moment
+            percent = (BLOCKS_DONE * NUM_BLOCKS * 100) / NUM_BLOCKS
+            if percent > 100:
+                percent = 100
+            logger.debug('committed {} blocks ({} seconds) {:.1f}% done.'.format(counter, round(time.time() - start_time, 2), percent))
             counter = 0
             start_time = time.time()
     session.commit()
