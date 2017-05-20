@@ -38,25 +38,23 @@ def parse_property(block: str, name: str):
         return None
 
 def parse_property_inetnum(block: str):
-# IPv4
-    match = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
+    # IPv4
+    match = re.findall(r'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
     if match:
-        ip_start = re.findall('^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*(?:\d{1,3}\.){3}\d{1,3}', block, re.MULTILINE)[0]
-        ip_end = re.findall('^inetnum:[\s]*(?:\d{1,3}\.){3}\d{1,3}[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)[0]
+        ip_start = match[0][0]
+        ip_end = match[0][1]
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return '{}'.format(cidrs[0])
-# IPv6
-    else:
-        match = re.findall('^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
-        if match:
-            return match[0]
-# LACNIC translation for IPv4
-        else:
-            match = re.findall('^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
-            if match:
-                return match[0]
-            else:
-                return None
+    # IPv6
+    match = re.findall('^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
+    if match:
+        return match[0]
+    # LACNIC translation for IPv4
+    match = re.findall('^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
+    if match:
+        return match[0]
+    logger.warn("Could not parse inetnum on block {}".format(block))
+    return None
 
 
 def read_blocks(filename: str) -> list:
@@ -80,15 +78,18 @@ def read_blocks(filename: str) -> list:
                         single_block += 'inet4num: ' + elements[3] + '/' + str(int(math.log(4294967296/int(elements[4]),2))) + '\n'
                     elif elements[2] == 'ipv6':
                         single_block += 'inet6num: ' + elements[3] + '/' + elements[4] + '\n'
+                    elif elements[2] == 'asn':
+                        continue
                     else:
+                        logger.warn("Unknown inetnum type {} on line {}".format(elements[2], line))
                         continue
                     if len(elements[1]) > 1:
                         single_block += 'country: ' + elements[1] + '\n'
                     if elements[5].isnumeric():
                         single_block += 'last-modified: ' + elements[5] + '\n'
                     single_block += 'descr: ' + elements[6] + '\n'
-                    if ("inet4num" or "inet6num") not in single_block:
-                        logger.warn("Invalid block: {}".format(line))
+                    if not any(x in single_block for x in ['inet4num', 'inet6num']):
+                        logger.warn("Invalid block: {} {}".format(line, single_block))
                     blocks.append(single_block)
                 else:
                     logger.warn("Invalid line: {}".format(line))
@@ -98,7 +99,7 @@ def read_blocks(filename: str) -> list:
     else:
         for line in f:
             # skip comments
-            if line.startswith('%') or line.startswith('#') or line.startswith('remarks:') or line.startswith(' '):
+            if line.startswith('%') or line.startswith('#') or line.startswith('remarks:'):
                 continue
             # block end
             if line.strip() == '':

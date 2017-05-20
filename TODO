@@ -1,10 +1,6 @@
 -) Handle Special case ("Dodsal"):
 inetnum:        118.102.134.160 -
                 118.102.134.175
--) Invalid block: lacnic|MX|ipv4|207.248.100.0|256|19970204|assigned|74021
--) Invalid block: lacnic||ipv4|207.191.160.0|4096||reserved|
-2017-05-19 23:25:13,093 - create_db - WARNING - MainProcess - Invalid block: lacnic||ipv6|2806:800::|21||available
-2017-05-19 23:25:13,093 - create_db - WARNING - MainProcess - Invalid block: lacnic|MX|ipv6|2806:1000::|24|20110301|allocated|21461
 -) add docker to readme
 -) grep --exclude-dir=databases -r ripe *
 -) rename project
@@ -13,4 +9,5 @@ inetnum:        118.102.134.160 -
 -) netname mandatory field --> not null (https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-documentation/rpsl-object-types/4-2-descriptions-of-primary-objects/4-2-4-description-of-the-inetnum-object)
 -) 176.28.20.159
 description | This network range is not allocated to APNIC. descr:        If your whois search has returned this message, then you have searched the APNIC whois database for an address that is allocated by another Regional Internet Registry (RIR). descr:        Please search the other RIRs at whois.arin.net or whois.ripe.net for more information about that range.
+-) remove volume from binstubs
 
