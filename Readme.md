@@ -50,7 +50,7 @@ Installation of needed packages (Example on Ubuntu 16.04):
 apt install postgresql python3 python3-netaddr python3-psycopg2 python3-sqlalchemy
 ```
 
-- or -
+or -
 
 ```sh
 apt install postgresql python3 python-pip
@@ -75,7 +75,7 @@ SELECT block.inetnum, block.netname, block.country, block.description, block.mai
 SELECT block.inetnum, block.netname, block.country, block.description, block.maintained_by, block.created, block.last_modified, block.source FROM block WHERE block.inetnum >> '8.8.8.8' ORDER BY block.inetnum DESC;
 ```
 
-- or -
+or -
 
 ```bash
 ./query_db.sh 192.0.2.1
