@@ -1,4 +1,7 @@
 .idea/
 *.pyc
-ripe.db.inetnum.gz
+*.swp
+databases/
 env/
+.bash_history
+.cache/

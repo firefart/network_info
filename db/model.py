@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*- ®
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
@@ -12,32 +12,19 @@ Base = get_base()
 class Block(Base):
     __tablename__ = 'block'
     id = Column(Integer, primary_key=True)
-    inetnum = Column(String, nullable=False)
-    netname = Column(String, nullable=False, index=True)
+    inetnum = Column(postgresql.CIDR, nullable=False, index=True)
+    netname = Column(String, nullable=True, index=True)
     description = Column(String, index=True)
     country = Column(String, index=True)
     maintained_by = Column(String, index=True)
     created = Column(DateTime, index=True)
     last_modified = Column(DateTime, index=True)
+    source = Column(String, index=True)
 
     def __str__(self):
-        return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}, created: {}, updated: {}'.format(
+        return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}, created: {}, updated: {}, source: {}'.format(
             self.inetnum, self.netname, self.description, self.country,
-            self.maintained_by, self.created, self.last_modified)
-
-    def __repr__(self):
-        return self.__str__()
-
-
-class Cidr(Base):
-    __tablename__ = 'cidr'
-    id = Column(Integer, primary_key=True)
-    cidr = Column(postgresql.CIDR, nullable=False, index=True)
-    block_id = Column(Integer, ForeignKey('block.id'))
-    block = relationship(Block)
-
-    def __str__(self):
-        return 'cidr: {}, blockid: {}'.format(self.cidr, self.block_id)
+            self.maintained_by, self.created, self.last_modified, self.source)
 
     def __repr__(self):
         return self.__str__()

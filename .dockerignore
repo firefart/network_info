@@ -1,0 +1,13 @@
+.git/
+env/
+bin/
+databases/
+TODO
+query_db.sh
+.*
+**/.DS_STORE
+**/*.md
+**/*.swp
+**/*.pyc
+Dockerfile
+docker-compose.yml

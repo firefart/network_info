@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+cd $DIR/../
+if [[ -n "$REBUILD" ]]; then
+  docker-compose build network_info
+fi
+# mount directory as volume and skip downloading of images by setting a new entrypoint
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml run --rm --service-ports network_info "$@"

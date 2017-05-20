@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*- ®
 
 from sqlalchemy import create_engine
@@ -12,8 +12,8 @@ def get_base():
     return Base
 
 
-def setup_connection(create_db=False):
-    engine = create_postgres_pool()
+def setup_connection(connection_string, create_db=False):
+    engine = create_postgres_pool(connection_string)
     session = sessionmaker()
     session.configure(bind=engine)
 
@@ -24,6 +24,6 @@ def setup_connection(create_db=False):
     return session()
 
 
-def create_postgres_pool():
-    engine = create_engine('postgresql://ripe@localhost/ripe')
+def create_postgres_pool(connection_string):
+    engine = create_engine(connection_string)
     return engine
