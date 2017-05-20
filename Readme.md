@@ -5,6 +5,8 @@ After the parsing finished you can get the infos for any IPv6 or IPv6 by queryin
 
 I recommend using the docker setup because it removes the hassle of installing everything manually.
 
+Hint: The Database can grow fast so be sure to have enough space. On docker my postgres database uses 4.066GB of space.
+
 # Docker
 
 You can simply pull the image from Docker Hub and connect it to a local database via
