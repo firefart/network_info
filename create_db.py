@@ -28,13 +28,12 @@ class ContextFilter(logging.Filter):
         return True
 
 logger = logging.getLogger('create_db')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 f = ContextFilter()
 logger.addFilter(f)
 formatter = logging.Formatter(LOG_FORMAT)
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
-stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
 
@@ -238,6 +237,9 @@ def main(connection_string):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create DB')
     parser.add_argument('-c', dest='connection_string', type=str, required=True, help="Connection string to the postgres database")
+    parser.add_argument("-d", "--debug", action="store_true",help="set loglevel to DEBUG")
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(VERSION))
     args = parser.parse_args()
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
     main(args.connection_string)
