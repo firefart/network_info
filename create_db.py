@@ -17,12 +17,20 @@ import math
 VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db', 'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
-LOG_FORMAT = '%(asctime)-15s - %(name)-9s - %(levelname)-8s - %(processName)-11s - %(message)s'
+LOG_FORMAT = '%(asctime)-15s - %(name)-9s - %(levelname)-8s - %(processName)-11s - %(filename)s - %(message)s'
 COMMIT_COUNT = 10000
 NUM_BLOCKS = 0
+CURRENT_FILENAME = "empty"
+
+class ContextFilter(logging.Filter):
+    def filter(self, record):
+        record.filename = CURRENT_FILENAME
+        return True
 
 logger = logging.getLogger('create_db')
 logger.setLevel(logging.DEBUG)
+f = ContextFilter()
+logger.addFilter(f)
 formatter = logging.Formatter(LOG_FORMAT)
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
@@ -43,7 +51,7 @@ def get_source(filename: str):
         return 'ripe'
     else:
         logger.error("Can not determine source for {}".format(filename))
-    return nil
+    return None
 
 def parse_property(block: str, name: str):
     match = re.findall(u'^{0:s}:\s*(.*)$'.format(name), block, re.MULTILINE)
@@ -183,6 +191,8 @@ def main(connection_string):
     session = setup_connection(connection_string, create_db=True)
 
     for entry in FILELIST:
+        global CURRENT_FILENAME
+        CURRENT_FILENAME = entry
         f_name = "./databases/{}".format(entry)
         if os.path.exists(f_name):
             logger.info('parsing database file: {}'.format(f_name))
@@ -217,6 +227,7 @@ def main(connection_string):
         else:
             logger.info('File {} not found. Please download using download_dumps.sh'.format(f_name))
 
+    CURRENT_FILENAME = "empty"
     logger.info('script finished: {} seconds'.format(round(time.time() - overall_start_time, 2)))
 
 
