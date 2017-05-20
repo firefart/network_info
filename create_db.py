@@ -53,9 +53,10 @@ def get_source(filename: str):
     return None
 
 def parse_property(block: str, name: str):
-    match = re.findall(u'^{0:s}:\s*(.*)$'.format(name), block, re.MULTILINE)
+    match = re.findall(u'^{0:s}:\s?(.+)$'.format(name), block, re.MULTILINE)
     if match:
-        return " ".join(match)
+        # remove whitespaces and empty lines
+        return ' '.join(list(filter(None, (x.strip() for x in match))))
     else:
         return None
 
