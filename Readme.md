@@ -9,14 +9,14 @@ I recommend using the docker setup because it removes the hassle of installing e
 
 You can simply pull the image from Docker Hub and connect it to a local database via
 ```sh
-docker pull FireFart/network_info
-docker run --rm FireFart/network_info -c postgres://user:pass@db:5432/network_info
+docker pull firefart/network_info
+docker run --rm firefart/network_info -c postgres://user:pass@db:5432/network_info
 ```
 
 Or cou can connect the docker container to another database container.
 ```sh
-docker run -name network_info_db -e POSTGRES_DB=network_info -e POSTGRES_USER=network_info -e POSTGRES_PASSWORD=network_info -d postgres:9-alpine
-docker run --rm --link network_info_db:postgres FireFart/network_info -c postgres://user:pass@db:5432/network_info
+docker run --name network_info_db -e POSTGRES_DB=network_info -e POSTGRES_USER=network_info -e POSTGRES_PASSWORD=network_info -d postgres:9-alpine
+docker run --rm --link network_info_db:postgres firefart/network_info -c postgres://user:pass@db:5432/network_info
 ```
 
 If you have checked out the GIT repo you can run the script via docker-compose.
