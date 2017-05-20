@@ -10,4 +10,5 @@ inetnum:        118.102.134.160 -
 -) 176.28.20.159
 description | This network range is not allocated to APNIC. descr:        If your whois search has returned this message, then you have searched the APNIC whois database for an address that is allocated by another Regional Internet Registry (RIR). descr:        Please search the other RIRs at whois.arin.net or whois.ripe.net for more information about that range.
 -) remove volume from binstubs
+-) 2017-05-20 00:52:43,238 - create_db - DEBUG    - Process-43  - committed 10000 blocks (8.56 seconds) 101.1% done.
 
