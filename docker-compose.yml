@@ -5,6 +5,8 @@ services:
     build:
       context: .
     command: -c postgres://ripe:ripe@db:5432/ripe
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     links:
       - db
 

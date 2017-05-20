@@ -3,3 +3,5 @@
 *.swp
 databases/
 env/
+.bash_history
+.cache/
