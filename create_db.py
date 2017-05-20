@@ -30,6 +30,21 @@ stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
 
+def get_source(filename: str):
+    if filename.startswith('afrinic'):
+        return 'afrinic'
+    elif filename.startswith('apnic'):
+        return 'apnic'
+    elif filename.startswith('arin'):
+        return 'arin'
+    elif 'lacnic' in filename:
+        return 'lacnic'
+    elif filename.startswith('ripe'):
+        return 'ripe'
+    else:
+        logger.error("Can not determine source for {}".format(filename))
+    return nil
+
 def parse_property(block: str, name: str):
     match = re.findall(u'^{0:s}:\s*(.*)$'.format(name), block, re.MULTILINE)
     if match:
@@ -104,6 +119,8 @@ def read_blocks(filename: str) -> list:
             # block end
             if line.strip() == '':
                 if single_block.startswith('inetnum:') or single_block.startswith('inet6num:'):
+                    # add source
+                    single_block += "cust_source: {}".format(get_source(filename.split('/')[-1]))
                     blocks.append(single_block)
                     single_block = ''
                     # comment out to only parse x blocks
@@ -140,9 +157,10 @@ def parse_blocks(jobs: Queue, connection_string: str):
         maintained_by = parse_property(block, 'mnt-by')
         created = parse_property(block, 'created')
         last_modified = parse_property(block, 'last-modified')
+        source = parse_property(block, 'cust_source')
 
         b = Block(inetnum=inetnum, netname=netname, description=description, country=country,
-                  maintained_by=maintained_by, created=created, last_modified=last_modified)
+                  maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
 
         session.add(b)
         counter += 1
