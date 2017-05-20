@@ -1,4 +1,3 @@
--) add docker to readme
 -) grep --exclude-dir=databases -r ripe *
 -) rename project
 -) 176.28.20.159
