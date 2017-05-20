@@ -12,5 +12,5 @@ cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
   docker-compose build ripe
 fi
-
-docker-compose run --rm --service-ports ripe "$@"
+# mount directory as volume and skip downloading of images by setting a new entrypoint
+docker-compose run --rm --service-ports -v $DIR/../:/ripe --entrypoint /ripe/create_db.py ripe "$@"

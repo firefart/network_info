@@ -1,13 +1,18 @@
 FROM python:3-alpine
 MAINTAINER Christian Mehlmauer <FireFart@gmail.com>
 
-RUN adduser -h /ripe -g ripe -D ripe
+ENV USERNAME ripe
+ENV APP_HOME /ripe
 
-COPY . /ripe
-WORKDIR /ripe
+RUN adduser -h $APP_HOME -g $USERNAME -D $USERNAME
+
+WORKDIR $APP_HOME
+
+COPY requirements.txt $APP_HOME
 
 RUN apk update && \
     apk add \
+      bash \
       postgresql-libs \
     && apk add --virtual .builddeps \
       build-base \
@@ -16,10 +21,11 @@ RUN apk update && \
     && apk del .builddeps \
     && rm -rf /var/cache/apk/*
 
-RUN chown -R ripe:ripe /ripe
-USER ripe
+COPY . $APP_HOME
+RUN chown -R $USERNAME:$USERNAME $APP_HOME
+USER $USERNAME
 
-RUN ./download_dumps.sh
+RUN mkdir -p databases
 
-ENTRYPOINT ["/ripe/create_db.py"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["--help"]
