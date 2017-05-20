@@ -1,8 +1,8 @@
 FROM python:3-alpine
 MAINTAINER Christian Mehlmauer <FireFart@gmail.com>
 
-ENV USERNAME ripe
-ENV APP_HOME /ripe
+ENV USERNAME app
+ENV APP_HOME /app
 
 RUN adduser -h $APP_HOME -g $USERNAME -D $USERNAME
 

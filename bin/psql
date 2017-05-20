@@ -10,4 +10,4 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/../
 
-docker-compose run -e PGPASSWORD=ripe --entrypoint=psql db -h db -U ripe -x ripe
+docker-compose run -e PGPASSWORD=network_info --entrypoint=psql db -h db -U network_info -x network_info

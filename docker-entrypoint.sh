@@ -2,4 +2,4 @@
 
 ./download_dumps.sh
 
-/ripe/create_db.py "$@"
+/app/create_db.py "$@"

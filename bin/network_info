@@ -10,7 +10,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
-  docker-compose build ripe
+  docker-compose build network_info
 fi
 
-docker-compose run --rm --service-ports ripe "$@"
+docker-compose run --rm --service-ports network_info "$@"

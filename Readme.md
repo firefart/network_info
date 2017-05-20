@@ -18,7 +18,7 @@ I included some binstubs so you don't have to deal with all the docker commands.
 
 If you run
 ```sh
-./bin/ripe
+./bin/network_info
 ```
 the image will be built, a postgres database is connected, the files are downloaded and the parsing begins.
 The database stays up after the run (you can see it via `docker ps`) so you can connect it to your script.
@@ -51,10 +51,10 @@ apt install postgresql python3 python-pip
 pip install -r requirements.txt
 ```
 
-Create PostgreSQL database (Use "ripe" as password):
+Create PostgreSQL database (Use "network_info" as password):
 ```sh
-sudo -u postgres createuser --pwprompt --createdb ripe
-sudo -u postgres createdb --owner=ripe ripe
+sudo -u postgres createuser --pwprompt --createdb network_info
+sudo -u postgres createdb --owner=network_info network_info
 ```
 
 Prior to starting this script you need to download the database dumps by executing:

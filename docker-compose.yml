@@ -1,10 +1,10 @@
 version: '2'
 services:
-  ripe:
-    image: ripe
+  network_info:
+    image: network_info
     build:
       context: .
-    command: -c postgres://ripe:ripe@db:5432/ripe
+    command: -c postgres://network_info:network_info@db:5432/network_info
     volumes:
       - /etc/localtime:/etc/localtime:ro
     links:
@@ -13,9 +13,9 @@ services:
   db:
     image: postgres:9-alpine
     environment:
-      POSTGRES_DB: ripe
-      POSTGRES_USER: ripe
-      POSTGRES_PASSWORD: ripe
+      POSTGRES_DB: network_info
+      POSTGRES_USER: network_info
+      POSTGRES_PASSWORD: network_info
     volumes:
       - pg_data:/var/lib/postgresql/data
 
