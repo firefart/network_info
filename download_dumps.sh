@@ -9,14 +9,14 @@ function download {
   wget -O "$DOWNLOAD_DIR/$name" "$1"
 }
 
-download "ftp://ftp.afrinic.net/pub/dbase/afrinic.db.gz"
+download "https://ftp.afrinic.net/pub/dbase/afrinic.db.gz"
 
-download "ftp://ftp.apnic.net/pub/apnic/whois/apnic.db.inetnum.gz"
-download "ftp://ftp.apnic.net/pub/apnic/whois/apnic.db.inet6num.gz"
+download "https://ftp.apnic.net/pub/apnic/whois/apnic.db.inetnum.gz"
+download "https://ftp.apnic.net/pub/apnic/whois/apnic.db.inet6num.gz"
 
-download "ftp://ftp.arin.net/pub/rr/arin.db"
+download "https://ftp.arin.net/pub/rr/arin.db"
 
 download "ftp://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest"
 
-download "ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.inetnum.gz"
-download "ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.inet6num.gz"
+download "https://ftp.ripe.net/ripe/dbase/split/ripe.db.inetnum.gz"
+download "https://ftp.ripe.net/ripe/dbase/split/ripe.db.inet6num.gz"
