@@ -76,7 +76,7 @@ def parse_property_inetnum(block: str):
     match = re.findall('^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
     if match:
         return match[0]
-    logger.warn("Could not parse inetnum on block {}".format(block))
+    logger.warning("Could not parse inetnum on block {}".format(block))
     return None
 
 
@@ -104,7 +104,7 @@ def read_blocks(filename: str) -> list:
                     elif elements[2] == 'asn':
                         continue
                     else:
-                        logger.warn("Unknown inetnum type {} on line {}".format(elements[2], line))
+                        logger.warning("Unknown inetnum type {} on line {}".format(elements[2], line))
                         continue
                     if len(elements[1]) > 1:
                         single_block += 'country: ' + elements[1] + '\n'
@@ -112,12 +112,13 @@ def read_blocks(filename: str) -> list:
                         single_block += 'last-modified: ' + elements[5] + '\n'
                     single_block += 'descr: ' + elements[6] + '\n'
                     if not any(x in single_block for x in ['inet4num', 'inet6num']):
-                        logger.warn("Invalid block: {} {}".format(line, single_block))
+                        logger.warning("Invalid block: {} {}".format(line, single_block))
+                    single_block += "cust_source: {}".format(get_source(filename.split('/')[-1]))
                     blocks.append(single_block)
                 else:
-                    logger.warn("Invalid line: {}".format(line))
+                    logger.warning("Invalid line: {}".format(line))
             else:
-                logger.warn("line does not start with lacnic: {}".format(line))
+                logger.warning("line does not start with lacnic: {}".format(line))
     # All other DBs goes here
     else:
         for line in f:
