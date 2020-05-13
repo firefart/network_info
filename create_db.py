@@ -67,7 +67,7 @@ def parse_property_inetnum(block: str):
         ip_start = match[0][0]
         ip_end = match[0][1]
         cidrs = iprange_to_cidrs(ip_start, ip_end)
-        return '{}'.format(cidrs[0])
+        return cidrs
     # IPv6
     match = re.findall('^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
     if match:
@@ -168,10 +168,17 @@ def parse_blocks(jobs: Queue, connection_string: str):
         last_modified = parse_property(block, 'last-modified')
         source = parse_property(block, 'cust_source')
 
-        b = Block(inetnum=inetnum, netname=netname, description=description, country=country,
-                  maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
 
-        session.add(b)
+        if isinstance(inetnum, list):
+            for cidr in inetnum:
+                b = Block(inetnum=str(cidr), netname=netname, description=description, country=country,
+                        maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+                session.add(b)
+        else:
+            b = Block(inetnum=inetnum, netname=netname, description=description, country=country,
+                    maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+            session.add(b)
+
         counter += 1
         BLOCKS_DONE += 1
         if counter % COMMIT_COUNT == 0:
