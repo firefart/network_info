@@ -10,7 +10,9 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
-  docker-compose build network_info
+  docker pull python:3-alpine
+  docker pull postgres:12-alpine
+  docker-compose build
 fi
 
-docker-compose run --rm --service-ports network_info "$@"
+docker-compose run -f docker-compose.yml --rm --service-ports network_info "$@"

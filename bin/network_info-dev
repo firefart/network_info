@@ -10,7 +10,9 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
-  docker-compose build network_info
+  docker pull python:3-alpine
+  docker pull postgres:12-alpine
+  docker-compose build
 fi
 # mount directory as volume and skip downloading of images by setting a new entrypoint
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml run --rm --service-ports network_info "$@"
+docker-compose -f docker-compose.yml -f docker-compose.override.yml run --rm --service-ports network_info "$@"
