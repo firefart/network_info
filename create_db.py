@@ -138,7 +138,6 @@ def read_blocks(filename: str) -> list:
                     logger.warning(f"line does not start with lacnic: {line}")
         # All other DBs goes here
         else:
-            counter = 0
             for line in f:
                 # skip comments
                 if line.startswith('%') or line.startswith('#') or line.startswith('remarks:'):
@@ -160,8 +159,6 @@ def read_blocks(filename: str) -> list:
                         single_block = ''
                 else:
                     single_block += line
-            counter += 1
-            log.debug(counter)
     logger.info(f"Got {len(blocks)} blocks")
     global NUM_BLOCKS
     NUM_BLOCKS = len(blocks)
