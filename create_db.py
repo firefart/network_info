@@ -42,25 +42,25 @@ logger.addHandler(stream_handler)
 
 def get_source(filename: str):
     if filename.startswith('afrinic'):
-        return 'afrinic'
+        return b'afrinic'
     elif filename.startswith('apnic'):
-        return 'apnic'
+        return b'apnic'
     elif filename.startswith('arin'):
-        return 'arin'
+        return b'arin'
     elif 'lacnic' in filename:
-        return 'lacnic'
+        return b'lacnic'
     elif filename.startswith('ripe'):
-        return 'ripe'
+        return b'ripe'
     else:
         logger.error(f"Can not determine source for {filename}")
     return None
 
 
 def parse_property(block: str, name: str):
-    match = re.findall(u'^{0:s}:\s?(.+)$'.format(name), block, re.MULTILINE)
+    match = re.findall(b'^%s:\s?(.+)$' % (name), block, re.MULTILINE)
     if match:
         # remove whitespaces and empty lines
-        return ' '.join(list(filter(None, (x.strip() for x in match))))
+        return b' '.join(list(filter(None, (x.strip() for x in match))))
     else:
         return None
 
@@ -68,20 +68,21 @@ def parse_property(block: str, name: str):
 def parse_property_inetnum(block: str):
     # IPv4
     match = re.findall(
-        r'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
+        rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
     if match:
-        ip_start = match[0][0]
-        ip_end = match[0][1]
+        # netaddr can only handle strings, not bytes
+        ip_start = match[0][0].decode('utf-8')
+        ip_end = match[0][1].decode('utf-8')
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return cidrs
     # IPv6
     match = re.findall(
-        r'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
+        rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
     if match:
         return match[0]
     # LACNIC translation for IPv4
     match = re.findall(
-        r'^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
+        rb'^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
     if match:
         return match[0]
     logger.warning(f"Could not parse inetnum on block {block}")
@@ -94,43 +95,41 @@ def read_blocks(filename: str) -> list:
     else:
         opemethod = open
     cust_source = get_source(filename.split('/')[-1])
-    single_block = ''
+    single_block = b''
     blocks = []
 
-    with opemethod(filename, mode='rt', encoding='ISO-8859-1') as f:
+    with opemethod(filename, mode='rb') as f:
         # Translation for LACNIC DB
         if filename.endswith('delegated-lacnic-extended-latest'):
             for line in f:
                 line = line.strip()
-                if line.startswith('lacnic'):
-                    elements = line.split('|')
+                if line.startswith(b'lacnic'):
+                    elements = line.split(b'|')
                     if len(elements) >= 7:
                         # convert lacnic to ripe format
-                        single_block = ''
-                        if elements[2] == 'ipv4':
-                            single_block += 'inet4num: ' + \
-                                elements[3] + '/' + \
-                                str(int(math.log(4294967296 /
-                                                 int(elements[4]), 2))) + '\n'
-                        elif elements[2] == 'ipv6':
-                            single_block += 'inet6num: ' + \
-                                elements[3] + '/' + elements[4] + '\n'
-                        elif elements[2] == 'asn':
+                        single_block = b''
+                        if elements[2] == b'ipv4':
+                            single_block += b'inet4num: %s/%d\n' % (
+                                elements[3], int(math.log(4294967296 / int(elements[4]), 2)))
+                        elif elements[2] == b'ipv6':
+                            single_block += b'inet6num: %s/%s\n' % (
+                                elements[3], elements[4])
+                        elif elements[2] == b'asn':
                             continue
                         else:
                             logger.warning(
                                 f"Unknown inetnum type {elements[2]} on line {line}")
                             continue
                         if len(elements[1]) > 1:
-                            single_block += 'country: ' + elements[1] + '\n'
-                        if elements[5].isnumeric():
-                            single_block += 'last-modified: ' + \
-                                elements[5] + '\n'
-                        single_block += 'descr: ' + elements[6] + '\n'
-                        if not any(x in single_block for x in ['inet4num', 'inet6num']):
+                            single_block += b'country: %s\n' % (elements[1])
+                        if elements[5].isdigit():
+                            single_block += b'last-modified: %s\n' % (
+                                elements[5])
+                        single_block += b'descr: %s\n' % (elements[6])
+                        if not any(x in single_block for x in [b'inet4num', b'inet6num']):
                             logger.warning(
                                 f"Invalid block: {line} {single_block}")
-                        single_block += f"cust_source: {cust_source}"
+                        single_block += b"cust_source: %s" % (cust_source)
                         blocks.append(single_block)
                     else:
                         logger.warning(f"Invalid line: {line}")
@@ -140,23 +139,23 @@ def read_blocks(filename: str) -> list:
         else:
             for line in f:
                 # skip comments
-                if line.startswith('%') or line.startswith('#') or line.startswith('remarks:'):
+                if line.startswith(b'%') or line.startswith(b'#') or line.startswith(b'remarks:'):
                     continue
                 # block end
-                if line.strip() == '':
-                    if single_block.startswith('inetnum:') or single_block.startswith('inet6num:'):
+                if line.strip() == b'':
+                    if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:'):
                         # add source
-                        single_block += f"cust_source: {cust_source}"
+                        single_block += b"cust_source: %s" % (cust_source)
                         blocks.append(single_block)
                         if len(blocks) % 1000 == 0:
                             logger.debug(
                                 f"parsed another 1000 blocks ({len(blocks)} so far)")
-                        single_block = ''
+                        single_block = b''
                         # comment out to only parse x blocks
                         # if len(blocks) == 100:
                         #    break
                     else:
-                        single_block = ''
+                        single_block = b''
                 else:
                     single_block += line
     logger.info(f"Got {len(blocks)} blocks")
@@ -178,13 +177,18 @@ def parse_blocks(jobs: Queue, connection_string: str):
             break
 
         inetnum = parse_property_inetnum(block)
-        netname = parse_property(block, 'netname')
-        description = parse_property(block, 'descr')
-        country = parse_property(block, 'country')
-        maintained_by = parse_property(block, 'mnt-by')
-        created = parse_property(block, 'created')
-        last_modified = parse_property(block, 'last-modified')
-        source = parse_property(block, 'cust_source')
+        netname = parse_property(block, b'netname')
+        description = parse_property(block, b'descr')
+        country = parse_property(block, b'country')
+        maintained_by = parse_property(block, b'mnt-by')
+        created = parse_property(block, b'created')
+        # timestamps need to be passed as strings
+        if created is not None:
+            created = created.decode('utf-8')
+        last_modified = parse_property(block, b'last-modified')
+        if last_modified is not None:
+            last_modified = last_modified.decode('utf-8')
+        source = parse_property(block, b'cust_source')
 
         if isinstance(inetnum, list):
             for cidr in inetnum:
@@ -192,7 +196,7 @@ def parse_blocks(jobs: Queue, connection_string: str):
                           maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
                 session.add(b)
         else:
-            b = Block(inetnum=inetnum, netname=netname, description=description, country=country,
+            b = Block(inetnum=inetnum.decode('utf-8'), netname=netname, description=description, country=country,
                       maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
             session.add(b)
 
@@ -241,7 +245,7 @@ def main(connection_string):
             logger.debug(f"starting {NUM_WORKERS} processes")
             for w in range(NUM_WORKERS):
                 p = Process(target=parse_blocks, args=(
-                    jobs, connection_string,))
+                    jobs, connection_string,), daemon=True)
                 p.start()
                 workers.append(p)
 
@@ -250,6 +254,8 @@ def main(connection_string):
                 jobs.put(b)
             for i in range(NUM_WORKERS):
                 jobs.put(None)
+            jobs.close()
+            jobs.join_thread()
 
             # wait to finish
             for p in workers:

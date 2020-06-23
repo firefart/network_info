@@ -1,21 +1,34 @@
 # Network Info Parser
 
 This script parses the ARIN/APNIC/LACNIC/AfriNIC/RIPE databases into a local PostgreSQL database.
-After the parsing finished you can get the infos for any IPv4 or IPv6 by querying the database.
+After the parsing is finished you can get the infos for any IPv4 or IPv6 by querying the database.
+
+This project was used in analysing some data dumps and cross referencing the IPs with the networks.
+It can also be used to easily search for netranges assigned to a company in interest.
 
 I recommend using the docker setup because it removes the hassle of installing everything manually.
 
 Hint: The Database can grow fast so be sure to have enough space. On docker my postgres database uses 4.066GB of space.
 
+# Requirements
+
+- Python3 >= 3.3
+- postgresql
+- python3-netaddr
+- python3-psycopg2
+- python3-sqlalchemy
+
 # Docker
 
 You can simply pull the image from Docker Hub and connect it to a local database via
+
 ```sh
 docker pull firefart/network_info
 docker run --rm firefart/network_info -c postgres://user:pass@db:5432/network_info
 ```
 
 Or cou can connect the docker container to another database container.
+
 ```sh
 docker run --name network_info_db -e POSTGRES_DB=network_info -e POSTGRES_USER=network_info -e POSTGRES_PASSWORD=network_info -d postgres:9-alpine
 docker run --rm --link network_info_db:postgres firefart/network_info -c postgres://user:pass@db:5432/network_info
@@ -25,22 +38,28 @@ If you have checked out the GIT repo you can run the script via docker-compose.
 I included some binstubs so you don't have to deal with all the docker commands.
 
 If you run
+
 ```sh
 ./bin/network_info
 ```
+
 the image will be built, a postgres database is connected, the files are downloaded and the parsing begins.
 The database stays up after the run (you can see it via `docker ps`) so you can connect it to your script.
 
 For a one shot query you can run
+
 ```
 ./bin/query IPv4
 ```
+
 or
+
 ```
 ./bin/query IPv6
 ```
 
 Or for a psql prompt
+
 ```
 ./bin/psql
 ```
@@ -48,6 +67,7 @@ Or for a psql prompt
 # Manual Installation
 
 Installation of needed packages (Example on Ubuntu 16.04):
+
 ```sh
 apt install postgresql python3 python3-netaddr python3-psycopg2 python3-sqlalchemy
 ```
@@ -60,12 +80,14 @@ pip install -r requirements.txt
 ```
 
 Create PostgreSQL database (Use "network_info" as password):
+
 ```sh
 sudo -u postgres createuser --pwprompt --createdb network_info
 sudo -u postgres createdb --owner=network_info network_info
 ```
 
 Prior to starting this script you need to download the database dumps by executing:
+
 ```sh
 ./download_dumps.sh
 ```
@@ -84,6 +106,7 @@ or -
 ```
 
 # Sample run (docker-compose)
+
 ```
 $ ./bin/network_info
 Creating network "ripe_default" with the default driver
@@ -166,7 +189,7 @@ source        | ripe
 inetnum       | 176.28.0.0/18
 netname       | DE-HEG-20110520
 country       | DE
-description   | 
+description   |
 maintained_by | RIPE-NCC-HM-MNT MNT-HEG
 created       | 2011-05-20 05:51:39
 last_modified | 2016-07-22 06:43:13
@@ -186,8 +209,8 @@ netname       | IANA-NETBLOCK-176
 country       | AU
 description   | This network range is not allocated to APNIC. If your whois search has returned this message, then you have searched the APNIC whois database for an address that is allocated by another Regional Internet Registry (RIR). Please search the other RIRs at whois.arin.net or whois.ripe.net for more information about that range.
 maintained_by | MAINT-APNIC-AP
-created       | 
-last_modified | 
+created       |
+last_modified |
 source        | apnic
 -[ RECORD 5 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 inetnum       | 0.0.0.0/0
@@ -204,8 +227,8 @@ netname       | IANA-BLOCK
 country       | AU
 description   | General placeholder reference for all IPv4 addresses
 maintained_by | MAINT-APNIC-AP
-created       | 
-last_modified | 
+created       |
+last_modified |
 source        | apnic
 -[ RECORD 7 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 inetnum       | 0.0.0.0/0
@@ -213,7 +236,7 @@ netname       | IANA-BLK
 country       | EU # Country is really world wide
 description   | The whole IPv4 address space
 maintained_by | AFRINIC-HM-MNT
-created       | 
-last_modified | 
+created       |
+last_modified |
 source        | afrinic
 ```
