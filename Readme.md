@@ -133,104 +133,68 @@ ripe.db.inetnum.gz   100% |*****************************************************
 Downloading ripe.db.inet6num.gz...
 Connecting to ftp.ripe.net (193.0.6.140:21)
 ripe.db.inet6num.gz  100% |****************************************************************************************************************************| 24589k  0:00:00 ETA
-2017-05-20 22:29:38,123 - create_db - INFO     - MainProcess - afrinic.db.gz - parsing database file: ./databases/afrinic.db.gz
-2017-05-20 22:29:40,440 - create_db - INFO     - MainProcess - afrinic.db.gz - Got 115692 blocks
-2017-05-20 22:29:40,440 - create_db - INFO     - MainProcess - afrinic.db.gz - database parsing finished: 2.32 seconds
-2017-05-20 22:29:40,440 - create_db - INFO     - MainProcess - afrinic.db.gz - parsing blocks
-2017-05-20 22:29:50,904 - create_db - INFO     - MainProcess - afrinic.db.gz - block parsing finished: 10.46 seconds
-2017-05-20 22:29:50,904 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - parsing database file: ./databases/apnic.db.inet6num.gz
-2017-05-20 22:29:52,064 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - Got 66456 blocks
-2017-05-20 22:29:52,070 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - database parsing finished: 1.17 seconds
-2017-05-20 22:29:52,070 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - parsing blocks
-2017-05-20 22:29:58,239 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - block parsing finished: 6.17 seconds
-2017-05-20 22:29:58,239 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - parsing database file: ./databases/apnic.db.inetnum.gz
-2017-05-20 22:30:10,663 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - Got 988559 blocks
-2017-05-20 22:30:10,668 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - database parsing finished: 12.43 seconds
-2017-05-20 22:30:10,668 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - parsing blocks
-2017-05-20 22:31:46,156 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - block parsing finished: 95.49 seconds
-2017-05-20 22:31:46,156 - create_db - INFO     - MainProcess - arin.db - parsing database file: ./databases/arin.db
-2017-05-20 22:31:46,439 - create_db - INFO     - MainProcess - arin.db - Got 1084 blocks
-2017-05-20 22:31:46,491 - create_db - INFO     - MainProcess - arin.db - database parsing finished: 0.34 seconds
-2017-05-20 22:31:46,491 - create_db - INFO     - MainProcess - arin.db - parsing blocks
-2017-05-20 22:31:46,647 - create_db - INFO     - MainProcess - arin.db - block parsing finished: 0.16 seconds
-2017-05-20 22:31:46,647 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - parsing database file: ./databases/delegated-lacnic-extended-latest
-2017-05-20 22:31:46,648 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - line does not start with lacnic: 2.3|lacnic|20170519|45916|19870101|20170519|-0300
-2017-05-20 22:31:46,648 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: lacnic|*|ipv4|*|13389|summary
-2017-05-20 22:31:46,648 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: lacnic|*|ipv6|*|25261|summary
-2017-05-20 22:31:46,649 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: lacnic|*|asn|*|7266|summary
-2017-05-20 22:31:46,806 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - Got 38650 blocks
-2017-05-20 22:31:46,806 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - database parsing finished: 0.16 seconds
-2017-05-20 22:31:46,806 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - parsing blocks
-2017-05-20 22:31:49,669 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - block parsing finished: 2.86 seconds
-2017-05-20 22:31:49,669 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - parsing database file: ./databases/ripe.db.inetnum.gz
-2017-05-20 22:33:16,952 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - Got 4113193 blocks
-2017-05-20 22:33:16,953 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - database parsing finished: 87.28 seconds
-2017-05-20 22:33:16,953 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - parsing blocks
-2017-05-20 22:41:05,502 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - block parsing finished: 468.55 seconds
-2017-05-20 22:41:05,502 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - parsing database file: ./databases/ripe.db.inet6num.gz
-2017-05-20 22:41:25,049 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - Got 995238 blocks
-2017-05-20 22:41:25,261 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - database parsing finished: 19.76 seconds
-2017-05-20 22:41:25,261 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - parsing blocks
-2017-05-20 22:43:11,061 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - block parsing finished: 105.8 seconds
-2017-05-20 22:43:11,061 - create_db - INFO     - MainProcess - empty - script finished: 813.01 seconds
+2020-06-23 20:21:11,836 - create_db - INFO     - MainProcess - afrinic.db.gz - parsing database file: ./databases/afrinic.db.gz
+2020-06-23 20:21:20,688 - create_db - INFO     - MainProcess - afrinic.db.gz - Got 171337 blocks
+2020-06-23 20:21:20,688 - create_db - INFO     - MainProcess - afrinic.db.gz - database parsing finished: 8.85 seconds
+2020-06-23 20:21:20,688 - create_db - INFO     - MainProcess - afrinic.db.gz - parsing blocks
+2020-06-23 20:21:40,904 - create_db - INFO     - MainProcess - afrinic.db.gz - block parsing finished: 20.22 seconds
+2020-06-23 20:21:40,906 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - parsing database file: ./databases/apnic.db.inet6num.gz
+2020-06-23 20:21:43,364 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - Got 73190 blocks
+2020-06-23 20:21:43,376 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - database parsing finished: 2.47 seconds
+2020-06-23 20:21:43,376 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - parsing blocks
+2020-06-23 20:21:52,059 - create_db - INFO     - MainProcess - apnic.db.inet6num.gz - block parsing finished: 8.68 seconds
+2020-06-23 20:21:52,061 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - parsing database file: ./databases/apnic.db.inetnum.gz
+2020-06-23 20:22:21,802 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - Got 1079011 blocks
+2020-06-23 20:22:21,809 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - database parsing finished: 29.75 seconds
+2020-06-23 20:22:21,809 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - parsing blocks
+2020-06-23 20:24:43,940 - create_db - INFO     - MainProcess - apnic.db.inetnum.gz - block parsing finished: 142.13 seconds
+2020-06-23 20:24:43,942 - create_db - INFO     - MainProcess - arin.db - parsing database file: ./databases/arin.db
+2020-06-23 20:24:43,946 - create_db - INFO     - MainProcess - arin.db - Got 0 blocks
+2020-06-23 20:24:44,008 - create_db - INFO     - MainProcess - arin.db - database parsing finished: 0.07 seconds
+2020-06-23 20:24:44,008 - create_db - INFO     - MainProcess - arin.db - parsing blocks
+2020-06-23 20:24:44,030 - create_db - INFO     - MainProcess - arin.db - block parsing finished: 0.02 seconds
+2020-06-23 20:24:44,032 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - parsing database file: ./databases/delegated-lacnic-extended-latest
+2020-06-23 20:24:44,034 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - line does not start with lacnic: b'2.3|lacnic|20200621|73188|19870101|20200619|-0300'
+2020-06-23 20:24:44,035 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: b'lacnic|*|ipv4|*|18136|summary'
+2020-06-23 20:24:44,035 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: b'lacnic|*|ipv6|*|43276|summary'
+2020-06-23 20:24:44,035 - create_db - WARNING  - MainProcess - delegated-lacnic-extended-latest - Invalid line: b'lacnic|*|asn|*|11776|summary'
+2020-06-23 20:24:44,489 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - Got 61412 blocks
+2020-06-23 20:24:44,489 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - database parsing finished: 0.46 seconds
+2020-06-23 20:24:44,489 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - parsing blocks
+2020-06-23 20:24:51,207 - create_db - INFO     - MainProcess - delegated-lacnic-extended-latest - block parsing finished: 6.72 seconds
+2020-06-23 20:24:51,209 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - parsing database file: ./databases/ripe.db.inetnum.gz
+2020-06-23 20:27:46,474 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - Got 4191047 blocks
+2020-06-23 20:27:46,476 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - database parsing finished: 175.27 seconds
+2020-06-23 20:27:46,476 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - parsing blocks
+2020-06-23 20:37:17,835 - create_db - INFO     - MainProcess - ripe.db.inetnum.gz - block parsing finished: 571.36 seconds
+2020-06-23 20:37:17,837 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - parsing database file: ./databases/ripe.db.inet6num.gz
+2020-06-23 20:37:57,369 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - Got 1081478 blocks
+2020-06-23 20:37:57,706 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - database parsing finished: 39.87 seconds
+2020-06-23 20:37:57,706 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - parsing blocks
+2020-06-23 20:40:21,534 - create_db - INFO     - MainProcess - ripe.db.inet6num.gz - block parsing finished: 143.83 seconds
+2020-06-23 20:40:21,534 - create_db - INFO     - MainProcess - empty - script finished: 1149.83 seconds
 
-$ ./bin/query 176.28.20.159
-SELECT block.inetnum, block.netname, block.country, block.description, block.maintained_by, block.created, block.last_modified, block.source FROM block WHERE block.inetnum >> '176.28.20.159' ORDER BY block.inetnum DESC;
+$ ./bin/query 8.8.8.8
+SELECT block.inetnum, block.netname, block.country, block.description, block.maintained_by, block.created, block.last_modified, block.source FROM block WHERE block.inetnum >> '8.8.8.8' ORDER BY block.inetnum DESC;
 -[ RECORD 1 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 176.28.16.0/21
-netname       | DE-HE-LVPS-176-28-16-NET
-country       | DE
-description   | Hosteurope GmbH
-maintained_by | MNT-HEG-MASS
-created       | 2011-08-30 12:34:13
-last_modified | 2015-12-01 15:01:32
-source        | ripe
--[ RECORD 2 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 176.28.0.0/18
-netname       | DE-HEG-20110520
-country       | DE
-description   |
-maintained_by | RIPE-NCC-HM-MNT MNT-HEG
-created       | 2011-05-20 05:51:39
-last_modified | 2016-07-22 06:43:13
-source        | ripe
--[ RECORD 3 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 176.0.0.0/8
-netname       | EU-ZZ-176
-country       | EU # Country is in fact world wide
-description   | To determine the registration information for a more specific range, please try a more specific query. If you see this object as a result of a single IP query, it means the IP address is currently in the free pool of address space managed by the RIPE NCC.
-maintained_by | RIPE-NCC-HM-MNT
-created       | 2010-05-10 11:10:14
-last_modified | 2015-09-23 13:18:28
-source        | ripe
--[ RECORD 4 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 176.0.0.0/8
-netname       | IANA-NETBLOCK-176
+inetnum       | 8.0.0.0/8
+netname       | IANA-NETBLOCK-8
 country       | AU
 description   | This network range is not allocated to APNIC. If your whois search has returned this message, then you have searched the APNIC whois database for an address that is allocated by another Regional Internet Registry (RIR). Please search the other RIRs at whois.arin.net or whois.ripe.net for more information about that range.
 maintained_by | MAINT-APNIC-AP
 created       |
-last_modified |
+last_modified | 2008-09-04 06:51:28
 source        | apnic
--[ RECORD 5 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 0.0.0.0/0
-netname       | IANA-BLK
-country       | EU # Country field is actually all countries in the world and not just EU countries
-description   | The whole IPv4 address space
+-[ RECORD 2 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+inetnum       | 8.0.0.0/6
+netname       | NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK
+country       | EU # Country is really world wide
+description   | IPv4 address block not managed by the RIPE NCC
 maintained_by | RIPE-NCC-HM-MNT
-created       | 2002-06-25 14:19:09
-last_modified | 2012-02-08 09:09:31
+created       | 2019-01-07 10:49:33
+last_modified | 2019-01-07 10:49:33
 source        | ripe
--[ RECORD 6 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-inetnum       | 0.0.0.0/0
-netname       | IANA-BLOCK
-country       | AU
-description   | General placeholder reference for all IPv4 addresses
-maintained_by | MAINT-APNIC-AP
-created       |
-last_modified |
-source        | apnic
--[ RECORD 7 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-[ RECORD 3 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 inetnum       | 0.0.0.0/0
 netname       | IANA-BLK
 country       | EU # Country is really world wide
@@ -239,4 +203,22 @@ maintained_by | AFRINIC-HM-MNT
 created       |
 last_modified |
 source        | afrinic
+-[ RECORD 4 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+inetnum       | 0.0.0.0/0
+netname       | IANA-BLK
+country       | EU # Country field is actually all countries in the world and not just EU countries
+description   | The whole IPv4 address space
+maintained_by | RIPE-NCC-HM-MNT
+created       | 2002-06-25 14:19:09
+last_modified | 2018-11-23 10:30:34
+source        | ripe
+-[ RECORD 5 ]-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+inetnum       | 0.0.0.0/0
+netname       | IANA-BLOCK
+country       | AU
+description   | General placeholder reference for all IPv4 addresses
+maintained_by | MAINT-APNIC-AP
+created       |
+last_modified | 2008-09-04 06:51:49
+source        | apnic
 ```

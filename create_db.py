@@ -56,16 +56,20 @@ def get_source(filename: str):
     return None
 
 
-def parse_property(block: str, name: str):
+def parse_property(block: str, name: str) -> str:
     match = re.findall(b'^%s:\s?(.+)$' % (name), block, re.MULTILINE)
     if match:
-        # remove whitespaces and empty lines
-        return b' '.join(list(filter(None, (x.strip() for x in match))))
+        # remove empty lines and remove multiple names
+        x = b' '.join(list(filter(None, (x.strip().replace(
+            b"%s: " % name, b'').replace(b"%s: " % name, b'') for x in match))))
+        # remove multiple whitespaces by using a split hack
+        # decode to latin-1 so it can be inserted in the database
+        return ' '.join(x.decode('latin-1').split())
     else:
         return None
 
 
-def parse_property_inetnum(block: str):
+def parse_property_inetnum(block: str) -> str:
     # IPv4
     match = re.findall(
         rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
@@ -182,12 +186,7 @@ def parse_blocks(jobs: Queue, connection_string: str):
         country = parse_property(block, b'country')
         maintained_by = parse_property(block, b'mnt-by')
         created = parse_property(block, b'created')
-        # timestamps need to be passed as strings
-        if created is not None:
-            created = created.decode('utf-8')
         last_modified = parse_property(block, b'last-modified')
-        if last_modified is not None:
-            last_modified = last_modified.decode('utf-8')
         source = parse_property(block, b'cust_source')
 
         if isinstance(inetnum, list):
