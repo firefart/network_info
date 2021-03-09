@@ -1,29 +1,20 @@
 FROM python:3-alpine
-MAINTAINER Christian Mehlmauer <FireFart@gmail.com>
+LABEL maintainer="Christian Mehlmauer <FireFart@gmail.com>"
 
-ENV USERNAME app
-ENV APP_HOME /app
+RUN adduser -h /app -g app -D app
 
-RUN adduser -h $APP_HOME -g $USERNAME -D $USERNAME
+WORKDIR /app
 
-WORKDIR $APP_HOME
+COPY requirements.txt /app
 
-COPY requirements.txt $APP_HOME
+RUN apk add --no-cache bash postgresql-libs \
+  && apk add --no-cache --virtual .builddeps build-base postgresql-dev \
+  && pip install -r requirements.txt \
+  && apk del --no-cache .builddeps
 
-RUN apk update && \
-    apk add \
-      bash \
-      postgresql-libs \
-    && apk add --virtual .builddeps \
-      build-base \
-      postgresql-dev \
-    && pip install -r requirements.txt \
-    && apk del .builddeps \
-    && rm -rf /var/cache/apk/*
-
-COPY . $APP_HOME
-RUN chown -R $USERNAME:$USERNAME $APP_HOME
-USER $USERNAME
+COPY . /app
+RUN chown -R app:app /app
+USER app
 
 RUN mkdir -p databases
 
