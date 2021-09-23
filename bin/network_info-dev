@@ -11,7 +11,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
   docker pull python:3-alpine
-  docker pull postgres:12-alpine
+  docker pull postgres:13-alpine
   docker-compose build
 fi
 # mount directory as volume and skip downloading of images by setting a new entrypoint
