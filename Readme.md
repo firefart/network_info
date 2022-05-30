@@ -27,7 +27,7 @@ docker pull firefart/network_info
 docker run --rm firefart/network_info -c postgresql://user:pass@db:5432/network_info
 ```
 
-Or cou can connect the docker container to another database container.
+Or you can connect the docker container to another database container.
 
 ```sh
 docker run --name network_info_db -e POSTGRES_DB=network_info -e POSTGRES_USER=network_info -e POSTGRES_PASSWORD=network_info -d postgres:9-alpine
@@ -222,3 +222,11 @@ created       |
 last_modified | 2008-09-04 06:51:49
 source        | apnic
 ```
+
+# Export block table
+
+If you need to export data from PG to another source (Clickhouse, Elasticsearch, etc.) you can use:
+```
+./bin/export_to_gzip. 
+```
+A compressed CSV file will be created.
