@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.10-alpine
 LABEL maintainer="Christian Mehlmauer <FireFart@gmail.com>"
 
 RUN adduser -h /app -g app -D app
