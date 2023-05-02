@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- ®
 
-from sqlalchemy import Column, Integer, String, DateTime, Index
+from sqlalchemy import Column, Integer, String, DateTime
 from db.helper import get_base
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import func
 
 Base = get_base()
 
@@ -14,14 +13,12 @@ class Block(Base):
     id = Column(Integer, primary_key=True)
     inetnum = Column(postgresql.CIDR, nullable=False, index=True)
     netname = Column(String, nullable=True, index=True)
-    description = Column(String)
+    description = Column(String, index=True)
     country = Column(String, index=True)
     maintained_by = Column(String, index=True)
     created = Column(DateTime, index=True)
     last_modified = Column(DateTime, index=True)
     source = Column(String, index=True)
-    __table_args__ = (
-        Index('ix_block_description', func.to_tsvector('english', description), postgresql_using="gin"), )
 
     def __str__(self):
         return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}, created: {}, updated: {}, source: {}'.format(

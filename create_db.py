@@ -89,6 +89,16 @@ def parse_property_inetnum(block: str) -> str:
         rb'^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
     if match:
         return match[0]
+    # ARIN route IPv4
+    match = re.findall(
+        rb'^route:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
+    if match:
+        return match[0]
+    # ARIN route6 IPv6
+    match = re.findall(
+        rb'^route6:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
+    if match:
+        return match[0]
     logger.warning(f"Could not parse inetnum on block {block}")
     return None
 
@@ -147,7 +157,7 @@ def read_blocks(filename: str) -> list:
                     continue
                 # block end
                 if line.strip() == b'':
-                    if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:'):
+                    if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:') or single_block.startswith(b'route:') or single_block.startswith(b'route6:'):
                         # add source
                         single_block += b"cust_source: %s" % (cust_source)
                         blocks.append(single_block)
@@ -182,6 +192,9 @@ def parse_blocks(jobs: Queue, connection_string: str):
 
         inetnum = parse_property_inetnum(block)
         netname = parse_property(block, b'netname')
+        # No netname field in ARIN block, try origin
+        if not netname:
+            netname = parse_property(block, b'origin')
         description = parse_property(block, b'descr')
         country = parse_property(block, b'country')
         maintained_by = parse_property(block, b'mnt-by')

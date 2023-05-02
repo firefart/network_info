@@ -15,7 +15,7 @@ Hint: The Database can grow fast so be sure to have enough space. On docker my p
 - Python3 >= 3.3
 - postgresql
 - python3-netaddr
-- python3-psycopg2
+- python3-psycopg
 - python3-sqlalchemy
 
 # Docker
