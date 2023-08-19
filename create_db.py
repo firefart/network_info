@@ -87,12 +87,12 @@ def parse_property_inetnum(block: str):
     match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){2}\d{1,3}/\d+)', block, re.MULTILINE)
     if match:
         tmp = match[0].split(b"/")
-        return f"{tmp[0]}.0/{tmp[1]}".encode("utf-8")
+        return f"{tmp[0].decode('utf-8')}.0/{tmp[1].decode('utf-8')}".encode("utf-8")
     # inetnum:    148.204/16
     match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){1}\d{1,3}/\d+)', block, re.MULTILINE)
     if match:
         tmp = match[0].split(b"/")
-        return f"{tmp[0]}.0.0/{tmp[1]}".encode("utf-8")
+        return f"{tmp[0].decode('utf-8')}.0.0/{tmp[1].decode('utf-8')}".encode("utf-8")
     # IPv6
     match = re.findall(
         rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
