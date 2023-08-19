@@ -87,7 +87,7 @@ def parse_property_inetnum(block: str) -> str:
     match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){2}\d{1,3}/\d+)', block, re.MULTILINE)
     if match:
         tmp = match[0].split(b"/")
-        return f"{tmp[0]}.0/{tmp[1]}"
+        return f"{tmp[0]}.0/{tmp[1]}".encode("utf-8")
     # IPv6
     match = re.findall(
         rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
@@ -186,7 +186,7 @@ def parse_blocks(jobs: Queue, connection_string: str):
                     day = int(date[6:8])
                     # some sanity checks for dates
                     if month >= 1 and month <=12 and day >= 1 and day <= 31:
-                        last_modified = f"{year}-{month}-{day}".encode("utf-8")
+                        last_modified = f"{year}-{month}-{day}"
                     else:
                         logger.debug(f"ignoring invalid changed date {date}")
                 else:
@@ -242,8 +242,7 @@ def main(connection_string):
             logger.info(f"parsing database file: {f_name}")
             start_time = time.time()
             blocks = read_blocks(f_name)
-            logger.info(
-                f"database parsing finished: {round(time.time() - start_time, 2)} seconds")
+            logger.info(f"database parsing finished: {round(time.time() - start_time, 2)} seconds")
 
             logger.info('parsing blocks')
             start_time = time.time()
@@ -253,7 +252,7 @@ def main(connection_string):
             workers = []
             # start workers
             logger.debug(f"starting {NUM_WORKERS} processes")
-            for w in range(NUM_WORKERS):
+            for _ in range(NUM_WORKERS):
                 p = Process(target=parse_blocks, args=(
                     jobs, connection_string,), daemon=True)
                 p.start()
