@@ -12,7 +12,6 @@ import os.path
 from db.model import Block
 from db.helper import setup_connection
 from netaddr import iprange_to_cidrs
-import math
 
 VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db.gz',
@@ -167,7 +166,16 @@ def parse_blocks(jobs: Queue, connection_string: str):
         created = parse_property(block, b'created')
         last_modified = parse_property(block, b'last-modified')
         if not last_modified:
-            last_modified = parse_property(block, b'changed')
+            changed = parse_property(block, b'changed')
+            # ***@ripe.net 19960624
+            # a.c@domain.com 20060331
+            # maybe repeated multiple times, we only take the first
+            if re.match(r'^.+?@.+? \d+', changed):
+                date = changed.split(" ")[1].strip()
+                if len(date) == 8:
+                    last_modified = f"{date[0:4]}-{date[4:6]}-{date[6:8]}"
+            else:
+                last_modified = changed
         status = parse_property(block, b'status')
         source = parse_property(block, b'cust_source')
 
@@ -203,7 +211,8 @@ def parse_blocks(jobs: Queue, connection_string: str):
 
 def main(connection_string):
     overall_start_time = time.time()
-    session = setup_connection(connection_string, create_db=True)
+    # reset database
+    setup_connection(connection_string, create_db=True)
 
     for entry in FILELIST:
         global CURRENT_FILENAME
@@ -233,7 +242,7 @@ def main(connection_string):
             # add tasks
             for b in blocks:
                 jobs.put(b)
-            for i in range(NUM_WORKERS):
+            for _ in range(NUM_WORKERS):
                 jobs.put(None)
             jobs.close()
             jobs.join_thread()
