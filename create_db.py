@@ -78,14 +78,13 @@ def parse_property_inetnum(block: str) -> str:
         ip_end = match[0][1].decode('utf-8')
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return cidrs
+    # direct CIDR in lacnic db
+    match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d+)', block, re.MULTILINE)
+    if match:
+        return match[0]
     # IPv6
     match = re.findall(
         rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
-    if match:
-        return match[0]
-    # LACNIC translation for IPv4
-    match = re.findall(
-        rb'^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
     if match:
         return match[0]
     # ARIN route IPv4
