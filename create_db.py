@@ -186,7 +186,7 @@ def parse_blocks(jobs: Queue, connection_string: str):
                     day = int(date[6:8])
                     # some sanity checks for dates
                     if month >= 1 and month <=12 and day >= 1 and day <= 31:
-                        last_modified = f"{year}-{month}-{day}"
+                        last_modified = f"{year}-{month}-{day}".encode("utf-8")
                     else:
                         logger.debug(f"ignoring invalid changed date {date}")
                 else:
