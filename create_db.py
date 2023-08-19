@@ -98,7 +98,6 @@ def parse_property_inetnum(block: str) -> str:
         rb'^route6:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
     if match:
         return match[0]
-    logger.warning(f"Could not parse inetnum on block {block}")
     return None
 
 
@@ -152,6 +151,10 @@ def parse_blocks(jobs: Queue, connection_string: str):
             break
 
         inetnum = parse_property_inetnum(block)
+        if not inetnum:
+            # invalid entry, do not parse
+            logger.warning(f"Could not parse inetnum on block {block}. skipping")
+            continue
         netname = parse_property(block, b'netname')
         # No netname field in ARIN block, try origin
         if not netname:
