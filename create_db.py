@@ -68,7 +68,7 @@ def parse_property(block: str, name: str) -> str:
         return None
 
 
-def parse_property_inetnum(block: str) -> str:
+def parse_property_inetnum(block: str):
     # IPv4
     match = re.findall(
         rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
@@ -88,6 +88,11 @@ def parse_property_inetnum(block: str) -> str:
     if match:
         tmp = match[0].split(b"/")
         return f"{tmp[0]}.0/{tmp[1]}".encode("utf-8")
+    # inetnum:    148.204/16
+    match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){1}\d{1,3}/\d+)', block, re.MULTILINE)
+    if match:
+        tmp = match[0].split(b"/")
+        return f"{tmp[0]}.0.0/{tmp[1]}".encode("utf-8")
     # IPv6
     match = re.findall(
         rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
