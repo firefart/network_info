@@ -21,14 +21,13 @@ class Block(Base):
     created = Column(DateTime, index=True)
     last_modified = Column(DateTime, index=True)
     source = Column(String, index=True)
+    status = Column(String, index=True)
 
     __table_args__ = (
         Index('ix_block_description', func.to_tsvector(literal_column("'english'"), description), postgresql_using="gin"), )
 
     def __str__(self):
-        return 'inetnum: {}, netname: {}, desc: {}, country: {}, maintained: {}, created: {}, updated: {}, source: {}'.format(
-            self.inetnum, self.netname, self.description, self.country,
-            self.maintained_by, self.created, self.last_modified, self.source)
+        return f'inetnum: {self.inetnum}, netname: {self.netname}, desc: {self.description}, status: {self.status}, country: {self.country}, maintained: {self.maintained_by}, created: {self.created}, updated: {self.last_modified}, source: {self.source}'
 
     def __repr__(self):
         return self.__str__()

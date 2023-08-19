@@ -16,7 +16,7 @@ import math
 
 VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db.gz',
-            'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
+            'lacnic.db.gz', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
 LOG_FORMAT = '%(asctime)-15s - %(name)-9s - %(levelname)-8s - %(processName)-11s - %(filename)s - %(message)s'
 COMMIT_COUNT = 10000
@@ -113,65 +113,27 @@ def read_blocks(filename: str) -> list:
     blocks = []
 
     with opemethod(filename, mode='rb') as f:
-        # Translation for LACNIC DB
-        if filename.endswith('delegated-lacnic-extended-latest'):
-            for line in f:
-                line = line.strip()
-                if line.startswith(b'lacnic'):
-                    elements = line.split(b'|')
-                    if len(elements) >= 7:
-                        # convert lacnic to ripe format
-                        single_block = b''
-                        if elements[2] == b'ipv4':
-                            single_block += b'inet4num: %s/%d\n' % (
-                                elements[3], int(math.log(4294967296 / int(elements[4]), 2)))
-                        elif elements[2] == b'ipv6':
-                            single_block += b'inet6num: %s/%s\n' % (
-                                elements[3], elements[4])
-                        elif elements[2] == b'asn':
-                            continue
-                        else:
-                            logger.warning(
-                                f"Unknown inetnum type {elements[2]} on line {line}")
-                            continue
-                        if len(elements[1]) > 1:
-                            single_block += b'country: %s\n' % (elements[1])
-                        if elements[5].isdigit():
-                            single_block += b'last-modified: %s\n' % (
-                                elements[5])
-                        single_block += b'descr: %s\n' % (elements[6])
-                        if not any(x in single_block for x in [b'inet4num', b'inet6num']):
-                            logger.warning(
-                                f"Invalid block: {line} {single_block}")
-                        single_block += b"cust_source: %s" % (cust_source)
-                        blocks.append(single_block)
-                    else:
-                        logger.warning(f"Invalid line: {line}")
+        for line in f:
+            # skip comments
+            if line.startswith(b'%') or line.startswith(b'#') or line.startswith(b'remarks:'):
+                continue
+            # block end
+            if line.strip() == b'':
+                if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:') or single_block.startswith(b'route:') or single_block.startswith(b'route6:'):
+                    # add source
+                    single_block += b"cust_source: %s" % (cust_source)
+                    blocks.append(single_block)
+                    if len(blocks) % 1000 == 0:
+                        logger.debug(
+                            f"parsed another 1000 blocks ({len(blocks)} so far)")
+                    single_block = b''
+                    # comment out to only parse x blocks
+                    # if len(blocks) == 100:
+                    #    break
                 else:
-                    logger.warning(f"line does not start with lacnic: {line}")
-        # All other DBs goes here
-        else:
-            for line in f:
-                # skip comments
-                if line.startswith(b'%') or line.startswith(b'#') or line.startswith(b'remarks:'):
-                    continue
-                # block end
-                if line.strip() == b'':
-                    if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:') or single_block.startswith(b'route:') or single_block.startswith(b'route6:'):
-                        # add source
-                        single_block += b"cust_source: %s" % (cust_source)
-                        blocks.append(single_block)
-                        if len(blocks) % 1000 == 0:
-                            logger.debug(
-                                f"parsed another 1000 blocks ({len(blocks)} so far)")
-                        single_block = b''
-                        # comment out to only parse x blocks
-                        # if len(blocks) == 100:
-                        #    break
-                    else:
-                        single_block = b''
-                else:
-                    single_block += line
+                    single_block = b''
+            else:
+                single_block += line
     logger.info(f"Got {len(blocks)} blocks")
     global NUM_BLOCKS
     NUM_BLOCKS = len(blocks)
@@ -197,19 +159,26 @@ def parse_blocks(jobs: Queue, connection_string: str):
             netname = parse_property(block, b'origin')
         description = parse_property(block, b'descr')
         country = parse_property(block, b'country')
+        # if we have a city object, append it to the country
+        city = parse_property(block, b'city')
+        if city:
+            country = f"{country} - {city}"
         maintained_by = parse_property(block, b'mnt-by')
         created = parse_property(block, b'created')
         last_modified = parse_property(block, b'last-modified')
+        if not last_modified:
+            last_modified = parse_property(block, b'changed')
+        status = parse_property(block, b'status')
         source = parse_property(block, b'cust_source')
 
         if isinstance(inetnum, list):
             for cidr in inetnum:
                 b = Block(inetnum=str(cidr), netname=netname, description=description, country=country,
-                          maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+                          maintained_by=maintained_by, created=created, last_modified=last_modified, source=source, status=status)
                 session.add(b)
         else:
             b = Block(inetnum=inetnum.decode('utf-8'), netname=netname, description=description, country=country,
-                      maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+                      maintained_by=maintained_by, created=created, last_modified=last_modified, source=source, status=status)
             session.add(b)
 
         counter += 1
