@@ -2,6 +2,6 @@ version: "3.7"
 services:
   network_info:
     entrypoint: /app/create_db.py
-    command: -c postgresql://network_info:network_info@db:5432/network_info -d
+    command: -c postgresql+psycopg://network_info:network_info@db:5432/network_info -d
     volumes:
       - .:/app

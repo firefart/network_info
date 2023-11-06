@@ -12,11 +12,10 @@ import os.path
 from db.model import Block
 from db.helper import setup_connection
 from netaddr import iprange_to_cidrs
-import math
 
 VERSION = '2.0'
 FILELIST = ['afrinic.db.gz', 'apnic.db.inet6num.gz', 'apnic.db.inetnum.gz', 'arin.db.gz',
-            'delegated-lacnic-extended-latest', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
+            'lacnic.db.gz', 'ripe.db.inetnum.gz', 'ripe.db.inet6num.gz']
 NUM_WORKERS = cpu_count()
 LOG_FORMAT = '%(asctime)-15s - %(name)-9s - %(levelname)-8s - %(processName)-11s - %(filename)s - %(message)s'
 COMMIT_COUNT = 10000
@@ -69,7 +68,7 @@ def parse_property(block: str, name: str) -> str:
         return None
 
 
-def parse_property_inetnum(block: str) -> str:
+def parse_property_inetnum(block: str):
     # IPv4
     match = re.findall(
         rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3})[\s]*-[\s]*((?:\d{1,3}\.){3}\d{1,3})', block, re.MULTILINE)
@@ -79,17 +78,36 @@ def parse_property_inetnum(block: str) -> str:
         ip_end = match[0][1].decode('utf-8')
         cidrs = iprange_to_cidrs(ip_start, ip_end)
         return cidrs
+    # direct CIDR in lacnic db
+    match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d+)', block, re.MULTILINE)
+    if match:
+        return match[0]
+    # lacnic with wrong ip
+    # inetnum:    177.46.7/24
+    match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){2}\d{1,3}/\d+)', block, re.MULTILINE)
+    if match:
+        tmp = match[0].split(b"/")
+        return f"{tmp[0].decode('utf-8')}.0/{tmp[1].decode('utf-8')}".encode("utf-8")
+    # inetnum:    148.204/16
+    match = re.findall(rb'^inetnum:[\s]*((?:\d{1,3}\.){1}\d{1,3}/\d+)', block, re.MULTILINE)
+    if match:
+        tmp = match[0].split(b"/")
+        return f"{tmp[0].decode('utf-8')}.0.0/{tmp[1].decode('utf-8')}".encode("utf-8")
     # IPv6
     match = re.findall(
         rb'^inet6num:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
     if match:
         return match[0]
-    # LACNIC translation for IPv4
+    # ARIN route IPv4
     match = re.findall(
-        rb'^inet4num:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
+        rb'^route:[\s]*((?:\d{1,3}\.){3}\d{1,3}/\d{1,2})', block, re.MULTILINE)
     if match:
         return match[0]
-    logger.warning(f"Could not parse inetnum on block {block}")
+    # ARIN route6 IPv6
+    match = re.findall(
+        rb'^route6:[\s]*([0-9a-fA-F:\/]{1,43})', block, re.MULTILINE)
+    if match:
+        return match[0]
     return None
 
 
@@ -103,65 +121,27 @@ def read_blocks(filename: str) -> list:
     blocks = []
 
     with opemethod(filename, mode='rb') as f:
-        # Translation for LACNIC DB
-        if filename.endswith('delegated-lacnic-extended-latest'):
-            for line in f:
-                line = line.strip()
-                if line.startswith(b'lacnic'):
-                    elements = line.split(b'|')
-                    if len(elements) >= 7:
-                        # convert lacnic to ripe format
-                        single_block = b''
-                        if elements[2] == b'ipv4':
-                            single_block += b'inet4num: %s/%d\n' % (
-                                elements[3], int(math.log(4294967296 / int(elements[4]), 2)))
-                        elif elements[2] == b'ipv6':
-                            single_block += b'inet6num: %s/%s\n' % (
-                                elements[3], elements[4])
-                        elif elements[2] == b'asn':
-                            continue
-                        else:
-                            logger.warning(
-                                f"Unknown inetnum type {elements[2]} on line {line}")
-                            continue
-                        if len(elements[1]) > 1:
-                            single_block += b'country: %s\n' % (elements[1])
-                        if elements[5].isdigit():
-                            single_block += b'last-modified: %s\n' % (
-                                elements[5])
-                        single_block += b'descr: %s\n' % (elements[6])
-                        if not any(x in single_block for x in [b'inet4num', b'inet6num']):
-                            logger.warning(
-                                f"Invalid block: {line} {single_block}")
-                        single_block += b"cust_source: %s" % (cust_source)
-                        blocks.append(single_block)
-                    else:
-                        logger.warning(f"Invalid line: {line}")
+        for line in f:
+            # skip comments
+            if line.startswith(b'%') or line.startswith(b'#') or line.startswith(b'remarks:'):
+                continue
+            # block end
+            if line.strip() == b'':
+                if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:') or single_block.startswith(b'route:') or single_block.startswith(b'route6:'):
+                    # add source
+                    single_block += b"cust_source: %s" % (cust_source)
+                    blocks.append(single_block)
+                    if len(blocks) % 1000 == 0:
+                        logger.debug(
+                            f"parsed another 1000 blocks ({len(blocks)} so far)")
+                    single_block = b''
+                    # comment out to only parse x blocks
+                    # if len(blocks) == 100:
+                    #    break
                 else:
-                    logger.warning(f"line does not start with lacnic: {line}")
-        # All other DBs goes here
-        else:
-            for line in f:
-                # skip comments
-                if line.startswith(b'%') or line.startswith(b'#') or line.startswith(b'remarks:'):
-                    continue
-                # block end
-                if line.strip() == b'':
-                    if single_block.startswith(b'inetnum:') or single_block.startswith(b'inet6num:'):
-                        # add source
-                        single_block += b"cust_source: %s" % (cust_source)
-                        blocks.append(single_block)
-                        if len(blocks) % 1000 == 0:
-                            logger.debug(
-                                f"parsed another 1000 blocks ({len(blocks)} so far)")
-                        single_block = b''
-                        # comment out to only parse x blocks
-                        # if len(blocks) == 100:
-                        #    break
-                    else:
-                        single_block = b''
-                else:
-                    single_block += line
+                    single_block = b''
+            else:
+                single_block += line
     logger.info(f"Got {len(blocks)} blocks")
     global NUM_BLOCKS
     NUM_BLOCKS = len(blocks)
@@ -181,22 +161,57 @@ def parse_blocks(jobs: Queue, connection_string: str):
             break
 
         inetnum = parse_property_inetnum(block)
+        if not inetnum:
+            # invalid entry, do not parse
+            logger.warning(f"Could not parse inetnum on block {block}. skipping")
+            continue
         netname = parse_property(block, b'netname')
+        # No netname field in ARIN block, try origin
+        if not netname:
+            netname = parse_property(block, b'origin')
         description = parse_property(block, b'descr')
         country = parse_property(block, b'country')
+        # if we have a city object, append it to the country
+        city = parse_property(block, b'city')
+        if city:
+            country = f"{country} - {city}"
         maintained_by = parse_property(block, b'mnt-by')
         created = parse_property(block, b'created')
         last_modified = parse_property(block, b'last-modified')
+        if not last_modified:
+            changed = parse_property(block, b'changed')
+            # ***@ripe.net 19960624
+            # a.c@domain.com 20060331
+            # maybe repeated multiple times, we only take the first
+            if re.match(r'^.+?@.+? \d+', changed):
+                date = changed.split(" ")[1].strip()
+                if len(date) == 8:
+                    year = int(date[0:4])
+                    month = int(date[4:6])
+                    day = int(date[6:8])
+                    # some sanity checks for dates
+                    if month >= 1 and month <=12 and day >= 1 and day <= 31:
+                        last_modified = f"{year}-{month}-{day}"
+                    else:
+                        logger.debug(f"ignoring invalid changed date {date}")
+                else:
+                    logger.debug(f"ignoring invalid changed date {date}")
+            elif "@" in changed:
+                # email in changed field without date
+                logger.debug(f"ignoring invalid changed date {changed}")
+            else:
+                last_modified = changed
+        status = parse_property(block, b'status')
         source = parse_property(block, b'cust_source')
 
         if isinstance(inetnum, list):
             for cidr in inetnum:
                 b = Block(inetnum=str(cidr), netname=netname, description=description, country=country,
-                          maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+                          maintained_by=maintained_by, created=created, last_modified=last_modified, source=source, status=status)
                 session.add(b)
         else:
             b = Block(inetnum=inetnum.decode('utf-8'), netname=netname, description=description, country=country,
-                      maintained_by=maintained_by, created=created, last_modified=last_modified, source=source)
+                      maintained_by=maintained_by, created=created, last_modified=last_modified, source=source, status=status)
             session.add(b)
 
         counter += 1
@@ -221,7 +236,8 @@ def parse_blocks(jobs: Queue, connection_string: str):
 
 def main(connection_string):
     overall_start_time = time.time()
-    session = setup_connection(connection_string, create_db=True)
+    # reset database
+    setup_connection(connection_string, create_db=True)
 
     for entry in FILELIST:
         global CURRENT_FILENAME
@@ -231,8 +247,7 @@ def main(connection_string):
             logger.info(f"parsing database file: {f_name}")
             start_time = time.time()
             blocks = read_blocks(f_name)
-            logger.info(
-                f"database parsing finished: {round(time.time() - start_time, 2)} seconds")
+            logger.info(f"database parsing finished: {round(time.time() - start_time, 2)} seconds")
 
             logger.info('parsing blocks')
             start_time = time.time()
@@ -242,7 +257,7 @@ def main(connection_string):
             workers = []
             # start workers
             logger.debug(f"starting {NUM_WORKERS} processes")
-            for w in range(NUM_WORKERS):
+            for _ in range(NUM_WORKERS):
                 p = Process(target=parse_blocks, args=(
                     jobs, connection_string,), daemon=True)
                 p.start()
@@ -251,7 +266,7 @@ def main(connection_string):
             # add tasks
             for b in blocks:
                 jobs.put(b)
-            for i in range(NUM_WORKERS):
+            for _ in range(NUM_WORKERS):
                 jobs.put(None)
             jobs.close()
             jobs.join_thread()
