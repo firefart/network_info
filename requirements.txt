@@ -1,5 +1,5 @@
-netaddr==0.9.0
-psycopg==3.1.15
-psycopg-c==3.1.15
+netaddr==0.10.0
+psycopg==3.1.16
+psycopg-c==3.1.16
 psycopg-pool==3.2.0
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.24
