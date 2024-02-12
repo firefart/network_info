@@ -12,7 +12,7 @@ cd $DIR/../
 if [[ -n "$REBUILD" ]]; then
   docker pull python:3-alpine
   docker pull postgres:13-alpine
-  docker-compose build
+  docker compose build
 fi
 
-docker-compose -f docker-compose.yml run --rm --service-ports network_info "$@"
+docker compose -f docker-compose.yml run --rm --service-ports network_info "$@"
