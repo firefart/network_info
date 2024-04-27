@@ -10,4 +10,4 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/../
 
-docker-compose run -e PGPASSWORD=network_info --entrypoint=psql db -h db -U network_info -e -q -x -c "SELECT block.inetnum, block.netname, block.country, block.description, block.maintained_by, block.created, block.last_modified, block.source FROM block WHERE block.inetnum >> '$1' ORDER BY block.inetnum DESC;" network_info
+docker compose run -e PGPASSWORD=network_info --entrypoint=psql db -h db -U network_info -e -q -x -c "SELECT block.inetnum, block.netname, block.country, block.description, block.maintained_by, block.created, block.last_modified, block.source FROM block WHERE block.inetnum >> '$1' ORDER BY block.inetnum DESC;" network_info

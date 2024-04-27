@@ -34,7 +34,7 @@ docker run --name network_info_db -e POSTGRES_DB=network_info -e POSTGRES_USER=n
 docker run --rm --link network_info_db:postgres firefart/network_info -c postgresql://user:pass@db:5432/network_info
 ```
 
-If you have checked out the GIT repo you can run the script via docker-compose.
+If you have checked out the GIT repo you can run the script via `docker compose`.
 I included some binstubs so you don't have to deal with all the docker commands.
 
 If you run
@@ -105,7 +105,7 @@ or -
 ./query_db.sh 192.0.2.1
 ```
 
-# Sample run (docker-compose)
+# Sample run (docker compose)
 
 ```
 $ ./bin/network_info

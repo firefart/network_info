@@ -1,4 +1,5 @@
-version: "3.7"
+version: "3"
+
 services:
   network_info:
     image: network_info
@@ -8,7 +9,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
 
   db:
     image: postgres:13-alpine
@@ -16,6 +19,12 @@ services:
       POSTGRES_DB: network_info
       POSTGRES_USER: network_info
       POSTGRES_PASSWORD: network_info
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     volumes:
       - pg_data:/var/lib/postgresql/data
 
