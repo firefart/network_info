@@ -227,6 +227,6 @@ source        | apnic
 
 If you need to export data from PG to another source (Clickhouse, Elasticsearch, etc.) you can use:
 ```
-./bin/export_to_gzip. 
+./bin/export_to_gzip 
 ```
 A compressed CSV file will be created.
