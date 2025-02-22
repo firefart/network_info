@@ -1,3 +1,5 @@
 #!/bin/bash
 
+set -euf -o pipefail
+
 docker-compose run --rm -e PGPASSWORD=network_info --name dumper --entrypoint=psql db -h db -U network_info -e -q -x -c "copy block TO stdout  DELIMITER ';' CSV HEADER ;" network_info | gzip > ./block_dump_`date +"%Y-%m-%d"`.csv.gz
