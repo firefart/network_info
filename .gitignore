@@ -5,4 +5,4 @@ databases/
 env/
 .bash_history
 .cache/
-/block_dump_*
+block_dump_*
