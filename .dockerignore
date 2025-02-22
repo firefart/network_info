@@ -11,3 +11,4 @@ query_db.sh
 **/*.pyc
 Dockerfile
 docker-compose.yml
+/block_dump_*
