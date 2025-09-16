@@ -15,6 +15,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
 
   - package-ecosystem: "Docker"
     directory: "/"
