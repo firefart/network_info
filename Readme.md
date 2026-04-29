@@ -227,6 +227,36 @@ source        | apnic
 
 If you need to export data from PG to another source (Clickhouse, Elasticsearch, etc.) you can use:
 ```
-./bin/export_to_gzip 
+./bin/export_to_gzip
 ```
-A compressed CSV file will be created.
+A compressed CSV file will be created with the current date in the filename.
+
+The script supports various options:
+```
+./bin/export_to_gzip [OPTIONS]
+
+Options:
+  -d, --delimiter DELIMITER   Field delimiter (default: ',')
+  -t, --table TABLE           Table name to export (default: block)
+  -o, --output PREFIX         Output file prefix (default: block_dump)
+  -h, --host HOST             Database host (default: db)
+  -u, --user USER             Database user (default: network_info)
+  -n, --database NAME         Database name (default: network_info)
+  -p, --password PASSWORD     Database password (default: network_info)
+  --help                       Show this help message
+```
+
+Examples:
+```
+# Default export (comma delimiter)
+./bin/export_to_gzip
+
+# Export with semicolon delimiter
+./bin/export_to_gzip -d ';'
+
+# Export as TSV (tab-separated)
+./bin/export_to_gzip -d $'\t'
+
+# Export custom table with pipe delimiter
+./bin/export_to_gzip -t users -d '|' -o users_dump
+```

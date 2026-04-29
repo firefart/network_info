@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./download_dumps.sh
+/app/download_dumps.sh
 
-/app/create_db.py "$@"
+/app/create_db.py -c "$DB_CONNECTION"

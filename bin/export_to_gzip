@@ -2,4 +2,114 @@
 
 set -euf -o pipefail
 
-docker-compose run --rm -e PGPASSWORD=network_info --name dumper --entrypoint=psql db -h db -U network_info -e -q -x -c "copy block TO stdout  DELIMITER ';' CSV HEADER ;" network_info | gzip > ./block_dump_`date +"%Y-%m-%d"`.csv.gz
+# Detect docker compose command
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    DOCKER_COMPOSE="docker compose"
+fi
+
+# Default values
+DELIMITER=","
+TABLE="block"
+OUTPUT_PREFIX="block_dump"
+DB_HOST="db"
+DB_USER="network_info"
+DB_NAME="network_info"
+DB_PASSWORD="network_info"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--delimiter)
+            DELIMITER="$2"
+            shift 2
+            ;;
+        -t|--table)
+            TABLE="$2"
+            shift 2
+            ;;
+        -o|--output)
+            OUTPUT_PREFIX="$2"
+            shift 2
+            ;;
+        -h|--host)
+            DB_HOST="$2"
+            shift 2
+            ;;
+        -u|--user)
+            DB_USER="$2"
+            shift 2
+            ;;
+        -n|--database)
+            DB_NAME="$2"
+            shift 2
+            ;;
+        -p|--password)
+            DB_PASSWORD="$2"
+            shift 2
+            ;;
+        --help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  -d, --delimiter DELIMITER   Field delimiter (default: ',')"
+            echo "  -t, --table TABLE           Table name to export (default: block)"
+            echo "  -o, --output PREFIX         Output file prefix (default: block_dump)"
+            echo "  -h, --host HOST             Database host (default: db)"
+            echo "  -u, --user USER             Database user (default: network_info)"
+            echo "  -n, --database NAME         Database name (default: network_info)"
+            echo "  -p, --password PASSWORD     Database password (default: network_info)"
+            echo "  --help                       Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  # Default export (comma delimiter)"
+            echo "  $0"
+            echo ""
+            echo "  # Export with semicolon delimiter"
+            echo "  $0 -d ';'"
+            echo ""
+            echo "  # Export as TSV (tab-separated)"
+            echo "  $0 -d \$'\\t'"
+            echo ""
+            echo "  # Export custom table with pipe delimiter"
+            echo "  $0 -t users -d '|' -o users_dump"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Escape delimiter for SQL (special characters like tab need special handling)
+if [[ "$DELIMITER" == $'\t' ]]; then
+    DELIMITER_SQL="E'\\t'"
+else
+    DELIMITER_SQL="'$DELIMITER'"
+fi
+
+# Generate output filename with date
+OUTPUT_FILE="${OUTPUT_PREFIX}_$(date +'%Y-%m-%d').csv.gz"
+
+# Build and execute the COPY command
+COPY_CMD="copy $TABLE TO stdout DELIMITER $DELIMITER_SQL CSV HEADER ;"
+
+echo "Exporting table '$TABLE' from database '$DB_NAME'..."
+echo "Delimiter: '$DELIMITER'"
+echo "Output: $OUTPUT_FILE"
+
+$DOCKER_COMPOSE run --rm \
+    -e PGPASSWORD="$DB_PASSWORD" \
+    --name dumper \
+    --entrypoint=psql \
+    db \
+    -h "$DB_HOST" \
+    -U "$DB_USER" \
+    -e -q -x \
+    -c "$COPY_CMD" \
+    "$DB_NAME" | gzip > "$OUTPUT_FILE"
+
+echo "Export completed successfully: $OUTPUT_FILE"
