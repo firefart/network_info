@@ -7,9 +7,9 @@ WORKDIR /app
 
 COPY requirements.txt /app
 
-RUN apk add --no-cache bash postgresql-libs \
+RUN apk add --no-cache bash postgresql-libs wget \
   && apk add --no-cache --virtual .builddeps build-base postgresql-dev \
-  && pip install -r requirements.txt \
+  && pip install --no-cache-dir -r requirements.txt \
   && apk del --no-cache .builddeps
 
 COPY . /app

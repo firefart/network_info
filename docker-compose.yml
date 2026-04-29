@@ -5,7 +5,8 @@ services:
     image: network_info
     build:
       context: .
-    command: -c postgresql+psycopg://network_info:network_info@db:5432/network_info
+    environment:
+      - DB_CONNECTION=postgresql+psycopg://network_info:network_info@db:5432/network_info
     volumes:
       - /etc/localtime:/etc/localtime:ro
     depends_on:
