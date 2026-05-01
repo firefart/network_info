@@ -1,0 +1,98 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+# Detect docker compose command
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    DOCKER_COMPOSE="docker compose"
+fi
+
+# Default values
+TABLE="block"
+OUTPUT_PREFIX="block_dump"
+DB_HOST="db"
+DB_USER="network_info"
+DB_NAME="network_info"
+DB_PASSWORD="network_info"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -t|--table)
+            TABLE="$2"
+            shift 2
+            ;;
+        -o|--output)
+            OUTPUT_PREFIX="$2"
+            shift 2
+            ;;
+        -h|--host)
+            DB_HOST="$2"
+            shift 2
+            ;;
+        -u|--user)
+            DB_USER="$2"
+            shift 2
+            ;;
+        -n|--database)
+            DB_NAME="$2"
+            shift 2
+            ;;
+        -p|--password)
+            DB_PASSWORD="$2"
+            shift 2
+            ;;
+        --help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  -t, --table TABLE           Table name to export (default: block)"
+            echo "  -o, --output PREFIX         Output file prefix (default: block_dump)"
+            echo "  -h, --host HOST             Database host (default: db)"
+            echo "  -u, --user USER             Database user (default: network_info)"
+            echo "  -n, --database NAME         Database name (default: network_info)"
+            echo "  -p, --password PASSWORD     Database password (default: network_info)"
+            echo "  --help                       Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  # Default export"
+            echo "  $0"
+            echo ""
+            echo "  # Export custom table"
+            echo "  $0 -t users -o users_dump"
+            echo ""
+            echo "  # Export with custom database connection"
+            echo "  $0 -h localhost -u myuser -n mydb -p mypass"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Generate output filename with date
+OUTPUT_FILE="${OUTPUT_PREFIX}_$(date +'%Y-%m-%d').mmdb"
+
+# Build connection string
+CONNECTION_STRING="postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
+
+echo "Exporting table '$TABLE' from database '$DB_NAME'..."
+echo "Output: $OUTPUT_FILE"
+
+$DOCKER_COMPOSE run --rm \
+    -e PGPASSWORD="$DB_PASSWORD" \
+    -v "$(pwd):/app/output" \
+    --name mmdb_exporter \
+    --entrypoint=python3 \
+    network_info \
+    export_to_mmdb.py \
+    -c "$CONNECTION_STRING" \
+    -o "/app/output/$OUTPUT_FILE" \
+    -t "$TABLE"
+
+echo "Export completed successfully: $OUTPUT_FILE"
