@@ -3,3 +3,4 @@ psycopg==3.3.4
 psycopg-c==3.3.4
 psycopg-pool==3.3.1
 SQLAlchemy==2.0.49
+mmdb-writer==0.2.6

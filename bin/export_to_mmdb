@@ -10,7 +10,6 @@ else
 fi
 
 # Default values
-DELIMITER=","
 TABLE="block"
 OUTPUT_PREFIX="block_dump"
 DB_HOST="db"
@@ -21,10 +20,6 @@ DB_PASSWORD="network_info"
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -d|--delimiter)
-            DELIMITER="$2"
-            shift 2
-            ;;
         -t|--table)
             TABLE="$2"
             shift 2
@@ -53,7 +48,6 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  -d, --delimiter DELIMITER   Field delimiter (default: ',')"
             echo "  -t, --table TABLE           Table name to export (default: block)"
             echo "  -o, --output PREFIX         Output file prefix (default: block_dump)"
             echo "  -h, --host HOST             Database host (default: db)"
@@ -63,17 +57,14 @@ while [[ $# -gt 0 ]]; do
             echo "  --help                       Show this help message"
             echo ""
             echo "Examples:"
-            echo "  # Default export (comma delimiter)"
+            echo "  # Default export"
             echo "  $0"
             echo ""
-            echo "  # Export with semicolon delimiter"
-            echo "  $0 -d ';'"
+            echo "  # Export custom table"
+            echo "  $0 -t users -o users_dump"
             echo ""
-            echo "  # Export as TSV (tab-separated)"
-            echo "  $0 -d \$'\\t'"
-            echo ""
-            echo "  # Export custom table with pipe delimiter"
-            echo "  $0 -t users -d '|' -o users_dump"
+            echo "  # Export with custom database connection"
+            echo "  $0 -h localhost -u myuser -n mydb -p mypass"
             exit 0
             ;;
         *)
@@ -84,32 +75,24 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Escape delimiter for SQL (special characters like tab need special handling)
-if [[ "$DELIMITER" == $'\t' ]]; then
-    DELIMITER_SQL="E'\\t'"
-else
-    DELIMITER_SQL="'$DELIMITER'"
-fi
-
 # Generate output filename with date
-OUTPUT_FILE="${OUTPUT_PREFIX}_$(date +'%Y-%m-%d').csv.gz"
+OUTPUT_FILE="${OUTPUT_PREFIX}_$(date +'%Y-%m-%d').mmdb"
 
-# Build and execute the COPY command
-COPY_CMD="copy $TABLE TO stdout DELIMITER $DELIMITER_SQL CSV HEADER ;"
+# Build connection string
+CONNECTION_STRING="postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
 
 echo "Exporting table '$TABLE' from database '$DB_NAME'..."
-echo "Delimiter: '$DELIMITER'"
 echo "Output: $OUTPUT_FILE"
 
 $DOCKER_COMPOSE run --rm \
     -e PGPASSWORD="$DB_PASSWORD" \
-    --name dumper \
-    --entrypoint=psql \
-    db \
-    -h "$DB_HOST" \
-    -U "$DB_USER" \
-    -e -q -x \
-    -c "$COPY_CMD" \
-    "$DB_NAME" | gzip > "$OUTPUT_FILE"
+    -v "$(pwd):/app/output" \
+    --name mmdb_exporter \
+    --entrypoint=python3 \
+    network_info \
+    export_to_mmdb.py \
+    -c "$CONNECTION_STRING" \
+    -o "/app/output/$OUTPUT_FILE" \
+    -t "$TABLE"
 
 echo "Export completed successfully: $OUTPUT_FILE"
